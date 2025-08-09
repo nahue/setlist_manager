@@ -1,0 +1,8 @@
+# Goose configuration file
+database:
+  driver: sqlite3
+  dsn: ./data/setlist_manager.db
+
+migrations:
+  dir: ./migrations
+  table: goose_db_version

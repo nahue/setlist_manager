@@ -1,0 +1,60 @@
+version: '3'
+
+tasks:
+  default:
+    desc: Default task
+    cmds:
+      - task: dev
+
+  build:
+    desc: Build the application
+    cmds:
+      - go build -o pr-toolbox-go .
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -f pr-toolbox-go
+
+  deps:
+    desc: Install dependencies
+    cmds:
+      - go mod tidy
+
+  templ:
+    desc: Generate templ files
+    cmds:
+      - templ generate
+
+  dev:
+    desc: Run with Air for hot reloading
+    env:
+      USE_AUTH: false
+    cmds:
+      - air
+
+  db:migrate:
+    desc: Run database migrations
+    cmds:
+      - goose sqlite3 ./data/setlist_manager.db -dir ./migrations up
+
+  db:rollback:
+    desc: Rollback last migration
+    cmds:
+      - goose sqlite3 ./data/setlist_manager.db -dir ./migrations down
+
+  db:status:
+    desc: Show migration status
+    cmds:
+      - goose sqlite3 ./data/setlist_manager.db -dir ./migrations status
+
+  db:reset:
+    desc: Reset database (drop all tables and re-run migrations)
+    cmds:
+      - rm -f ./data/setlist_manager.db
+      - goose sqlite3 ./data/setlist_manager.db -dir ./migrations up

@@ -1,0 +1,7 @@
+setlist_manager
+.env
+tmp
+data/
+*.db
+*.sqlite
+*.sqlite3
