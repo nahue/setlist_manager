@@ -2,10 +2,9 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,6 +19,7 @@ type CreateBandRequest struct {
 
 type InviteMemberRequest struct {
 	Email string `json:"email"`
+	Name  string `json:"name"`
 	Role  string `json:"role"`
 }
 
@@ -244,56 +244,99 @@ func (app *Application) inviteMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if user has permission to invite (owner or admin)
+	// Check if user is a member of the band
 	member, err := app.db.GetBandMember(bandID, user.ID)
 	if err != nil {
 		log.Printf("Error checking band membership: %v", err)
 		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
 		return
 	}
-	if member == nil || (member.Role != "owner" && member.Role != "admin") {
+	if member == nil {
 		http.Error(w, "Access denied", http.StatusForbidden)
 		return
 	}
 
-	var req InviteMemberRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		log.Printf("Error parsing form: %v", err)
+		http.Error(w, "Error parsing form data", http.StatusBadRequest)
 		return
 	}
 
-	if req.Email == "" {
+	// Extract form values
+	email := r.FormValue("email")
+	name := r.FormValue("name")
+	role := r.FormValue("role")
+
+	log.Printf("Received form data: email=%s, name=%s, role=%s", email, name, role)
+
+	if email == "" {
 		http.Error(w, "Email is required", http.StatusBadRequest)
 		return
 	}
 
+	// Check if the email exists in the users table
+	invitedUser, err := app.db.GetUserByEmail(email)
+	if err != nil {
+		log.Printf("Error checking if user exists: %v", err)
+		http.Error(w, "Failed to check if user exists", http.StatusInternalServerError)
+		return
+	}
+	if invitedUser == nil {
+		http.Error(w, "User with this email does not exist. They must sign up first.", http.StatusBadRequest)
+		return
+	}
+
+	// Check if user is already a member of this band
+	existingMember, err := app.db.GetBandMember(bandID, invitedUser.ID)
+	if err != nil {
+		log.Printf("Error checking if user is already a member: %v", err)
+		http.Error(w, "Failed to check if user is already a member", http.StatusInternalServerError)
+		return
+	}
+	if existingMember != nil {
+		http.Error(w, "User is already a member of this band", http.StatusBadRequest)
+		return
+	}
+
 	// Set default role if not provided
-	if req.Role == "" {
-		req.Role = "member"
+	if role == "" {
+		role = "member"
 	}
 
 	// Validate role
-	if req.Role != "member" && req.Role != "admin" {
+	if role != "member" && role != "admin" {
 		http.Error(w, "Invalid role", http.StatusBadRequest)
 		return
 	}
 
 	// Create invitation (expires in 7 days)
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
-	invitation, err := app.db.CreateBandInvitation(bandID, req.Email, user.ID, req.Role, expiresAt)
+	_, err = app.db.CreateBandInvitation(bandID, email, user.ID, role, expiresAt)
 	if err != nil {
 		log.Printf("Error creating invitation: %v", err)
 		http.Error(w, "Failed to create invitation", http.StatusInternalServerError)
 		return
 	}
 
-	// Return success response
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"success":    true,
-		"invitation": invitation,
-		"message":    fmt.Sprintf("Invitation sent to %s", req.Email),
-	})
+	// Get updated band members
+	members, err := app.db.GetBandMembers(bandID)
+	if err != nil {
+		log.Printf("Error getting updated band members: %v", err)
+		http.Error(w, "Failed to get updated band members", http.StatusInternalServerError)
+		return
+	}
+
+	// Return HTML response with the updated members section
+	w.Header().Set("Content-Type", "text/html")
+
+	// Render the members section directly to the response
+	err = templates.MembersSection(members, bandID).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering members section: %v", err)
+		http.Error(w, "Failed to render members section", http.StatusInternalServerError)
+		return
+	}
 }
 
 // getInvitations handles GET /api/invitations
@@ -482,33 +525,41 @@ func (app *Application) createSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Debug: log the request body
-	bodyBytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("Error reading request body: %v", err)
-		http.Error(w, "Error reading request body", http.StatusBadRequest)
-		return
-	}
-	log.Printf("Received request body: %s", string(bodyBytes))
-
-	var req CreateSongRequest
-	if err := json.Unmarshal(bodyBytes, &req); err != nil {
-		log.Printf("Error decoding JSON: %v", err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		log.Printf("Error parsing form: %v", err)
+		http.Error(w, "Error parsing form data", http.StatusBadRequest)
 		return
 	}
 
-	if req.Title == "" {
+	// Extract form values
+	title := r.FormValue("title")
+	artist := r.FormValue("artist")
+	key := r.FormValue("key")
+	tempoStr := r.FormValue("tempo")
+	notes := r.FormValue("notes")
+
+	// Convert tempo string to int pointer
+	var tempo *int
+	if tempoStr != "" {
+		if tempoInt, err := strconv.Atoi(tempoStr); err == nil {
+			tempo = &tempoInt
+		}
+	}
+
+	log.Printf("Received form data: title=%s, artist=%s, key=%s, tempo=%s, notes=%s", title, artist, key, tempoStr, notes)
+
+	if title == "" {
 		http.Error(w, "Song title is required", http.StatusBadRequest)
 		return
 	}
 
 	// Debug: log the values being passed to CreateSong
 	log.Printf("Creating song with: bandID=%s, title=%s, artist=%s, key=%s, notes=%s, userID=%s, tempo=%v",
-		bandID, req.Title, req.Artist, req.Key, req.Notes, user.ID, req.Tempo)
+		bandID, title, artist, key, notes, user.ID, tempo)
 
 	// Create the song
-	_, err = app.db.CreateSong(bandID, req.Title, req.Artist, req.Key, req.Notes, user.ID, req.Tempo)
+	_, err = app.db.CreateSong(bandID, title, artist, key, notes, user.ID, tempo)
 	if err != nil {
 		log.Printf("Error creating song: %v", err)
 		http.Error(w, "Failed to create song", http.StatusInternalServerError)
