@@ -93,6 +93,11 @@ func (app *Application) setupRoutes() {
 		r.Get("/api/bands/band", app.getBand)
 		r.Post("/api/bands/invite", app.inviteMember)
 
+		// Song API routes
+		r.Get("/api/bands/songs", app.getSongs)
+		r.Post("/api/bands/songs", app.createSong)
+		r.Delete("/api/bands/songs/{songID}", app.deleteSong)
+
 		// Invitation routes
 		r.Get("/api/invitations", app.getInvitations)
 		r.Post("/api/invitations/accept", app.acceptInvitation)

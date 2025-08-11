@@ -74,6 +74,21 @@ type BandInvitation struct {
 	InvitedByUser *User      `json:"invited_by_user,omitempty"`
 }
 
+type Song struct {
+	ID        string    `json:"id"`
+	BandID    string    `json:"band_id"`
+	Title     string    `json:"title"`
+	Artist    string    `json:"artist"`
+	Key       string    `json:"key"`
+	Tempo     *int      `json:"tempo,omitempty"`
+	Notes     string    `json:"notes"`
+	CreatedBy string    `json:"created_by"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	IsActive  bool      `json:"is_active"`
+	User      *User     `json:"user,omitempty"`
+}
+
 func NewDatabase() (*Database, error) {
 	// Ensure data directory exists
 	if err := os.MkdirAll("data", 0755); err != nil {
@@ -693,6 +708,148 @@ func (d *Database) CleanupExpiredInvitations() error {
 	_, err := d.db.Exec(query, time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to cleanup expired invitations: %w", err)
+	}
+	return nil
+}
+
+// Song operations
+func (d *Database) CreateSong(bandID, title, artist, key, notes, createdBy string, tempo *int) (*Song, error) {
+	songID := generateUUID()
+
+	query := `INSERT INTO songs (id, band_id, title, artist, key, tempo, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := d.db.Exec(query, songID, bandID, title, artist, key, tempo, notes, createdBy)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create song: %w", err)
+	}
+
+	return &Song{
+		ID:        songID,
+		BandID:    bandID,
+		Title:     title,
+		Artist:    artist,
+		Key:       key,
+		Tempo:     tempo,
+		Notes:     notes,
+		CreatedBy: createdBy,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		IsActive:  true,
+	}, nil
+}
+
+func (d *Database) GetSongsByBand(bandID string) ([]*Song, error) {
+	query := `
+		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.created_by, s.created_at, s.updated_at, s.is_active,
+		       u.id, u.email, u.created_at, u.last_login, u.is_active
+		FROM songs s
+		INNER JOIN users u ON s.created_by = u.id
+		WHERE s.band_id = ? AND s.is_active = 1
+		ORDER BY s.created_at DESC
+	`
+
+	rows, err := d.db.Query(query, bandID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get songs: %w", err)
+	}
+	defer rows.Close()
+
+	var songs []*Song
+	for rows.Next() {
+		var song Song
+		var user User
+		var lastLogin sql.NullTime
+		var tempo sql.NullInt32
+
+		err := rows.Scan(
+			&song.ID,
+			&song.BandID,
+			&song.Title,
+			&song.Artist,
+			&song.Key,
+			&tempo,
+			&song.Notes,
+			&song.CreatedBy,
+			&song.CreatedAt,
+			&song.UpdatedAt,
+			&song.IsActive,
+			&user.ID,
+			&user.Email,
+			&user.CreatedAt,
+			&lastLogin,
+			&user.IsActive,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan song: %w", err)
+		}
+
+		if lastLogin.Valid {
+			user.LastLogin = &lastLogin.Time
+		}
+		if tempo.Valid {
+			tempoInt := int(tempo.Int32)
+			song.Tempo = &tempoInt
+		}
+
+		song.User = &user
+		songs = append(songs, &song)
+	}
+
+	return songs, nil
+}
+
+func (d *Database) GetSongByID(songID string) (*Song, error) {
+	query := `
+		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.created_by, s.created_at, s.updated_at, s.is_active
+		FROM songs s
+		WHERE s.id = ? AND s.is_active = 1
+	`
+
+	var song Song
+	var tempo sql.NullInt32
+
+	err := d.db.QueryRow(query, songID).Scan(
+		&song.ID,
+		&song.BandID,
+		&song.Title,
+		&song.Artist,
+		&song.Key,
+		&tempo,
+		&song.Notes,
+		&song.CreatedBy,
+		&song.CreatedAt,
+		&song.UpdatedAt,
+		&song.IsActive,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get song: %w", err)
+	}
+
+	if tempo.Valid {
+		tempoInt := int(tempo.Int32)
+		song.Tempo = &tempoInt
+	}
+
+	return &song, nil
+}
+
+func (d *Database) UpdateSong(songID, title, artist, key, notes string, tempo *int) error {
+	query := `UPDATE songs SET title = ?, artist = ?, key = ?, tempo = ?, notes = ?, updated_at = ? WHERE id = ?`
+	_, err := d.db.Exec(query, title, artist, key, tempo, notes, time.Now(), songID)
+	if err != nil {
+		return fmt.Errorf("failed to update song: %w", err)
+	}
+	return nil
+}
+
+func (d *Database) DeleteSong(songID string) error {
+	query := `UPDATE songs SET is_active = 0, updated_at = ? WHERE id = ?`
+	_, err := d.db.Exec(query, time.Now(), songID)
+	if err != nil {
+		return fmt.Errorf("failed to delete song: %w", err)
 	}
 	return nil
 }

@@ -3,8 +3,10 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/nahue/setlist_manager/templates"
@@ -23,6 +25,14 @@ type InviteMemberRequest struct {
 
 type AcceptInvitationRequest struct {
 	InvitationID string `json:"invitation_id"`
+}
+
+type CreateSongRequest struct {
+	Title  string `json:"title"`
+	Artist string `json:"artist"`
+	Key    string `json:"key"`
+	Tempo  *int   `json:"tempo"`
+	Notes  string `json:"notes"`
 }
 
 // serveBands handles GET /bands
@@ -45,8 +55,55 @@ func (app *Application) serveBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Create BandPage template
-	http.Error(w, "Band page not implemented yet", http.StatusNotImplemented)
+	// Get current user from session
+	user := app.getCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := app.db.GetBandMember(bandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Get band details
+	band, err := app.db.GetBandByID(bandID)
+	if err != nil {
+		log.Printf("Error getting band: %v", err)
+		http.Error(w, "Failed to get band", http.StatusInternalServerError)
+		return
+	}
+	if band == nil {
+		http.Error(w, "Band not found", http.StatusNotFound)
+		return
+	}
+
+	// Get band members
+	members, err := app.db.GetBandMembers(bandID)
+	if err != nil {
+		log.Printf("Error getting band members: %v", err)
+		http.Error(w, "Failed to get band members", http.StatusInternalServerError)
+		return
+	}
+
+	// Get songs for the band
+	songs, err := app.db.GetSongsByBand(bandID)
+	if err != nil {
+		log.Printf("Error getting songs: %v", err)
+		http.Error(w, "Failed to get songs", http.StatusInternalServerError)
+		return
+	}
+
+	component := templates.BandDetailsPage(band, members, songs, member.Role)
+	component.Render(r.Context(), w)
 }
 
 // createBand handles POST /api/bands
@@ -323,4 +380,228 @@ func (app *Application) declineInvitation(w http.ResponseWriter, r *http.Request
 		"success": true,
 		"message": "Invitation declined successfully",
 	})
+}
+
+// getSongs handles GET /api/bands/songs
+func (app *Application) getSongs(w http.ResponseWriter, r *http.Request) {
+	bandID := r.URL.Query().Get("id")
+	if bandID == "" {
+		http.Error(w, "Band ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get current user from session
+	user := app.getCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := app.db.GetBandMember(bandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Get songs for the band
+	songs, err := app.db.GetSongsByBand(bandID)
+	if err != nil {
+		log.Printf("Error getting songs: %v", err)
+		http.Error(w, "Failed to get songs", http.StatusInternalServerError)
+		return
+	}
+
+	// Return songs
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"songs":   songs,
+	})
+}
+
+// createSong handles POST /api/bands/songs
+func (app *Application) createSong(w http.ResponseWriter, r *http.Request) {
+	bandID := r.URL.Query().Get("id")
+	if bandID == "" {
+		http.Error(w, "Band ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get current user from session
+	user := app.getCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := app.db.GetBandMember(bandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Debug: verify user exists
+	userCheck, err := app.db.GetUserByID(user.ID)
+	if err != nil {
+		log.Printf("Error checking user existence: %v", err)
+		http.Error(w, "Failed to verify user", http.StatusInternalServerError)
+		return
+	}
+	if userCheck == nil {
+		log.Printf("User not found: %s", user.ID)
+		http.Error(w, "User not found", http.StatusBadRequest)
+		return
+	}
+
+	// Debug: verify band exists
+	bandCheck, err := app.db.GetBandByID(bandID)
+	if err != nil {
+		log.Printf("Error checking band existence: %v", err)
+		http.Error(w, "Failed to verify band", http.StatusInternalServerError)
+		return
+	}
+	if bandCheck == nil {
+		log.Printf("Band not found: %s", bandID)
+		http.Error(w, "Band not found", http.StatusBadRequest)
+		return
+	}
+
+	// Debug: log the request body
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading request body: %v", err)
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	log.Printf("Received request body: %s", string(bodyBytes))
+
+	var req CreateSongRequest
+	if err := json.Unmarshal(bodyBytes, &req); err != nil {
+		log.Printf("Error decoding JSON: %v", err)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.Title == "" {
+		http.Error(w, "Song title is required", http.StatusBadRequest)
+		return
+	}
+
+	// Debug: log the values being passed to CreateSong
+	log.Printf("Creating song with: bandID=%s, title=%s, artist=%s, key=%s, notes=%s, userID=%s, tempo=%v",
+		bandID, req.Title, req.Artist, req.Key, req.Notes, user.ID, req.Tempo)
+
+	// Create the song
+	_, err = app.db.CreateSong(bandID, req.Title, req.Artist, req.Key, req.Notes, user.ID, req.Tempo)
+	if err != nil {
+		log.Printf("Error creating song: %v", err)
+		http.Error(w, "Failed to create song", http.StatusInternalServerError)
+		return
+	}
+
+	// Get updated songs list for the band
+	songs, err := app.db.GetSongsByBand(bandID)
+	if err != nil {
+		log.Printf("Error getting updated songs: %v", err)
+		http.Error(w, "Failed to get updated songs", http.StatusInternalServerError)
+		return
+	}
+
+	// Return HTML response with the updated songs section
+	w.Header().Set("Content-Type", "text/html")
+
+	// Render the songs section directly to the response
+	err = templates.SongsSection(songs).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering songs section: %v", err)
+		http.Error(w, "Failed to render songs section", http.StatusInternalServerError)
+		return
+	}
+}
+
+// deleteSong handles DELETE /api/bands/songs/{songID}
+func (app *Application) deleteSong(w http.ResponseWriter, r *http.Request) {
+	// Extract song ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+	songID := pathParts[len(pathParts)-1]
+
+	// Get current user from session
+	user := app.getCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get the song to check ownership
+	song, err := app.db.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := app.db.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Only allow song creator or band owner/admin to delete
+	if song.CreatedBy != user.ID && member.Role != "owner" && member.Role != "admin" {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Delete the song
+	err = app.db.DeleteSong(songID)
+	if err != nil {
+		log.Printf("Error deleting song: %v", err)
+		http.Error(w, "Failed to delete song", http.StatusInternalServerError)
+		return
+	}
+
+	// Get updated songs list for the band
+	songs, err := app.db.GetSongsByBand(song.BandID)
+	if err != nil {
+		log.Printf("Error getting updated songs: %v", err)
+		http.Error(w, "Failed to get updated songs", http.StatusInternalServerError)
+		return
+	}
+
+	// Return HTML response with the updated songs section
+	w.Header().Set("Content-Type", "text/html")
+
+	// Render the songs section directly to the response
+	err = templates.SongsSection(songs).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering songs section: %v", err)
+		http.Error(w, "Failed to render songs section", http.StatusInternalServerError)
+		return
+	}
 }

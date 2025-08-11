@@ -1,0 +1,15 @@
+---
+description: Alpine and Alpine-Ajax implementation 
+globs:
+alwaysApply: true
+---
+
+When working in components directory:
+
+- Always use Alpine-Ajax to communicate with the backend
+- Rely on the backend returning HTML
+- Rely on HTML standards whenever possible, avoid using fetch and client side data manipulation
+
+When working in the API handler in GO:
+
+- Always return HTML built with Templ

@@ -1,0 +1,7 @@
+---
+description: How to run the app
+globs:
+alwaysApply: true
+---
+
+When cursor needs to run the application use the "task dev" command
