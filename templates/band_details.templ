@@ -45,6 +45,36 @@ templ BandDetailsContent(band *database.Band, members []*database.BandMember, so
 			};
 			
 			console.log('Sending JSON data:', jsonData);
+		},
+		handleReorderSuccess($event) {
+			// Alpine AJAX automatically replaced the songs section
+			console.log('Songs reordered successfully');
+		},
+		handleReorderError($event) {
+			console.error('Error reordering songs:', $event.detail);
+			alert('Error reordering songs');
+		},
+		handleSort(item, position) {
+			// Get all song elements and their IDs in current order
+			const songElements = document.querySelectorAll('[data-song-id]');
+			const songOrder = Array.from(songElements).map(el => el.getAttribute('data-song-id'));
+			
+			// Send to server
+			fetch(`/api/bands/songs/reorder?id=${new URLSearchParams(window.location.search).get('id')}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ song_order: songOrder })
+			})
+			.then(response => response.text())
+			.then(html => {
+				document.getElementById('songs-section').innerHTML = html;
+			})
+			.catch(error => {
+				console.error('Error reordering songs:', error);
+				alert('Error reordering songs');
+			});
 		}
 	}"
 	>
@@ -190,12 +220,31 @@ templ SongsSection(songs []*database.Song) {
 						<p class="text-xs text-gray-400">Add your first song to get started</p>
 					</div>
 				} else {
-					<div class="space-y-4">
+					<div 
+						class="space-y-4" 
+						x-sort="handleSort"
+						x-sort:config="{ 
+							animation: 150,
+							ghostClass: 'sortable-ghost',
+							chosenClass: 'sortable-chosen'
+						}"
+					>
 						for _, song := range songs {
-							<div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+							<div 
+								class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors [body:not(.sorting)_&]:hover:bg-gray-50"
+								data-song-id={ song.ID }
+								x-sort:item={ song.ID }
+							>
 								<div class="flex justify-between items-start">
 									<div class="flex-1">
-										<h3 class="text-lg font-medium text-gray-900">{ song.Title }</h3>
+										<div class="flex items-center space-x-2">
+											<span x-sort:handle class="cursor-move text-gray-400 hover:text-gray-600">
+												<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+												</svg>
+											</span>
+											<h3 class="text-lg font-medium text-gray-900">{ song.Title }</h3>
+										</div>
 										<p class="text-sm text-gray-600">{ song.Artist }</p>
 										<div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
 											<span>Key: { song.Key }</span>

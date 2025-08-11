@@ -35,6 +35,10 @@ type CreateSongRequest struct {
 	Notes  string `json:"notes"`
 }
 
+type ReorderSongsRequest struct {
+	SongOrder []string `json:"song_order"`
+}
+
 // serveBands handles GET /bands
 func (app *Application) serveBands(w http.ResponseWriter, r *http.Request) {
 	component := templates.BandsPage()
@@ -591,6 +595,73 @@ func (app *Application) deleteSong(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error getting updated songs: %v", err)
 		http.Error(w, "Failed to get updated songs", http.StatusInternalServerError)
+		return
+	}
+
+	// Return HTML response with the updated songs section
+	w.Header().Set("Content-Type", "text/html")
+
+	// Render the songs section directly to the response
+	err = templates.SongsSection(songs).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering songs section: %v", err)
+		http.Error(w, "Failed to render songs section", http.StatusInternalServerError)
+		return
+	}
+}
+
+// reorderSongs handles POST /api/bands/songs/reorder
+func (app *Application) reorderSongs(w http.ResponseWriter, r *http.Request) {
+	bandID := r.URL.Query().Get("id")
+	if bandID == "" {
+		http.Error(w, "Band ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get current user from session
+	user := app.getCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := app.db.GetBandMember(bandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Parse request body
+	var req ReorderSongsRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if len(req.SongOrder) == 0 {
+		http.Error(w, "Song order is required", http.StatusBadRequest)
+		return
+	}
+
+	// Reorder the songs
+	err = app.db.ReorderSongs(bandID, req.SongOrder)
+	if err != nil {
+		log.Printf("Error reordering songs: %v", err)
+		http.Error(w, "Failed to reorder songs", http.StatusInternalServerError)
+		return
+	}
+
+	// Get updated songs list
+	songs, err := app.db.GetSongsByBand(bandID)
+	if err != nil {
+		log.Printf("Error getting songs after reorder: %v", err)
+		http.Error(w, "Failed to get songs", http.StatusInternalServerError)
 		return
 	}
 

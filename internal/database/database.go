@@ -82,6 +82,7 @@ type Song struct {
 	Key       string    `json:"key"`
 	Tempo     *int      `json:"tempo,omitempty"`
 	Notes     string    `json:"notes"`
+	Position  int       `json:"position"`
 	CreatedBy string    `json:"created_by"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -716,8 +717,16 @@ func (d *Database) CleanupExpiredInvitations() error {
 func (d *Database) CreateSong(bandID, title, artist, key, notes, createdBy string, tempo *int) (*Song, error) {
 	songID := generateUUID()
 
-	query := `INSERT INTO songs (id, band_id, title, artist, key, tempo, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := d.db.Exec(query, songID, bandID, title, artist, key, tempo, notes, createdBy)
+	// Get the next position for this band
+	var maxPosition int
+	err := d.db.QueryRow("SELECT COALESCE(MAX(position), 0) FROM songs WHERE band_id = ? AND is_active = 1", bandID).Scan(&maxPosition)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get max position: %w", err)
+	}
+	nextPosition := maxPosition + 1
+
+	query := `INSERT INTO songs (id, band_id, title, artist, key, tempo, notes, created_by, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err = d.db.Exec(query, songID, bandID, title, artist, key, tempo, notes, createdBy, nextPosition)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create song: %w", err)
 	}
@@ -730,6 +739,7 @@ func (d *Database) CreateSong(bandID, title, artist, key, notes, createdBy strin
 		Key:       key,
 		Tempo:     tempo,
 		Notes:     notes,
+		Position:  nextPosition,
 		CreatedBy: createdBy,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -739,12 +749,12 @@ func (d *Database) CreateSong(bandID, title, artist, key, notes, createdBy strin
 
 func (d *Database) GetSongsByBand(bandID string) ([]*Song, error) {
 	query := `
-		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.created_by, s.created_at, s.updated_at, s.is_active,
+		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.position, s.created_by, s.created_at, s.updated_at, s.is_active,
 		       u.id, u.email, u.created_at, u.last_login, u.is_active
 		FROM songs s
 		INNER JOIN users u ON s.created_by = u.id
 		WHERE s.band_id = ? AND s.is_active = 1
-		ORDER BY s.created_at DESC
+		ORDER BY s.position ASC
 	`
 
 	rows, err := d.db.Query(query, bandID)
@@ -768,6 +778,7 @@ func (d *Database) GetSongsByBand(bandID string) ([]*Song, error) {
 			&song.Key,
 			&tempo,
 			&song.Notes,
+			&song.Position,
 			&song.CreatedBy,
 			&song.CreatedAt,
 			&song.UpdatedAt,
@@ -851,6 +862,32 @@ func (d *Database) DeleteSong(songID string) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete song: %w", err)
 	}
+	return nil
+}
+
+// ReorderSongs updates the positions of songs in a band
+func (d *Database) ReorderSongs(bandID string, songOrder []string) error {
+	// Start a transaction
+	tx, err := d.db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	// Update positions for each song
+	for i, songID := range songOrder {
+		_, err := tx.Exec("UPDATE songs SET position = ?, updated_at = ? WHERE id = ? AND band_id = ?",
+			i+1, time.Now(), songID, bandID)
+		if err != nil {
+			return fmt.Errorf("failed to update song position: %w", err)
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
 	return nil
 }
 

@@ -82,6 +82,25 @@ func (app *Application) handleMagicLinkVerification(w http.ResponseWriter, r *ht
 
 	log.Printf("User authenticated successfully: %s", user.ID)
 
+	// Check if user has any bands, create default band if not
+	bands, err := app.db.GetBandsByUser(user.ID)
+	if err != nil {
+		log.Printf("Error checking user bands: %v", err)
+		// Continue anyway, don't fail the login
+	} else if len(bands) == 0 {
+		// Create a default band for the user
+		defaultBandName := "My Band"
+		defaultBandDescription := "Your personal band for managing songs and setlists"
+
+		band, err := app.db.CreateBand(defaultBandName, defaultBandDescription, user.ID)
+		if err != nil {
+			log.Printf("Error creating default band: %v", err)
+			// Continue anyway, don't fail the login
+		} else {
+			log.Printf("Created default band '%s' for user: %s", band.Name, user.Email)
+		}
+	}
+
 	// Redirect to dashboard
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

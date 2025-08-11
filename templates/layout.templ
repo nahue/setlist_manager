@@ -14,6 +14,7 @@ templ BaseLayout(data PageData) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ data.Title }</title>
 			<script defer src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.x.x/dist/cdn.min.js"></script>
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 			<script src="https://cdn.tailwindcss.com"></script>
 			<script>
@@ -32,6 +33,16 @@ templ BaseLayout(data PageData) {
 					}
 				}
 			</script>
+			<style>
+				.sortable-ghost {
+					opacity: 0.5 !important;
+					background-color: #f3f4f6 !important;
+				}
+				.sortable-chosen {
+					background-color: #dbeafe !important;
+					border-color: #3b82f6 !important;
+				}
+			</style>
 		</head>
 		<body class="h-full">
 			<div class="min-h-full">

@@ -64,14 +64,14 @@ func BandDetailsContent(band *database.Band, members []*database.BandMember, son
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-7xl mx-auto\" x-data=\"{ \n\t\tshowAddSongModal: false,\n\t\tnewSong: { title: '', artist: '', key: '', tempo: '', notes: '' },\n\t\tbandId: new URLSearchParams(window.location.search).get('id'),\n\t\thandleSongSuccess($event) {\n\t\t\t// Alpine AJAX automatically replaced the songs section\n\t\t\t// Just close the modal and reset the form\n\t\t\tthis.showAddSongModal = false;\n\t\t\tthis.newSong = { title: '', artist: '', key: '', tempo: '', notes: '' };\n\t\t},\n\t\thandleSongError($event) {\n\t\t\tconsole.error('Error adding song:', $event.detail);\n\t\t\talert('Error adding song');\n\t\t},\n\t\tprepareJsonData($event) {\n\t\t\t// Convert form data to JSON\n\t\t\tconst formData = new FormData($event.target);\n\t\t\tconst jsonData = {\n\t\t\t\ttitle: formData.get('title') || '',\n\t\t\t\tartist: formData.get('artist') || '',\n\t\t\t\tkey: formData.get('key') || '',\n\t\t\t\ttempo: formData.get('tempo') ? parseInt(formData.get('tempo')) : null,\n\t\t\t\tnotes: formData.get('notes') || ''\n\t\t\t};\n\t\t\t\n\t\t\t// Override the request options\n\t\t\t$event.detail.body = JSON.stringify(jsonData);\n\t\t\t$event.detail.headers = {\n\t\t\t\t'Content-Type': 'application/json'\n\t\t\t};\n\t\t\t\n\t\t\tconsole.log('Sending JSON data:', jsonData);\n\t\t}\n\t}\"><!-- Band Content --><div><!-- Header --><div class=\"mb-8\"><div class=\"flex justify-between items-start\"><div><h1 class=\"text-3xl font-bold text-gray-900\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-7xl mx-auto\" x-data=\"{ \n\t\tshowAddSongModal: false,\n\t\tnewSong: { title: '', artist: '', key: '', tempo: '', notes: '' },\n\t\tbandId: new URLSearchParams(window.location.search).get('id'),\n\t\thandleSongSuccess($event) {\n\t\t\t// Alpine AJAX automatically replaced the songs section\n\t\t\t// Just close the modal and reset the form\n\t\t\tthis.showAddSongModal = false;\n\t\t\tthis.newSong = { title: '', artist: '', key: '', tempo: '', notes: '' };\n\t\t},\n\t\thandleSongError($event) {\n\t\t\tconsole.error('Error adding song:', $event.detail);\n\t\t\talert('Error adding song');\n\t\t},\n\t\tprepareJsonData($event) {\n\t\t\t// Convert form data to JSON\n\t\t\tconst formData = new FormData($event.target);\n\t\t\tconst jsonData = {\n\t\t\t\ttitle: formData.get('title') || '',\n\t\t\t\tartist: formData.get('artist') || '',\n\t\t\t\tkey: formData.get('key') || '',\n\t\t\t\ttempo: formData.get('tempo') ? parseInt(formData.get('tempo')) : null,\n\t\t\t\tnotes: formData.get('notes') || ''\n\t\t\t};\n\t\t\t\n\t\t\t// Override the request options\n\t\t\t$event.detail.body = JSON.stringify(jsonData);\n\t\t\t$event.detail.headers = {\n\t\t\t\t'Content-Type': 'application/json'\n\t\t\t};\n\t\t\t\n\t\t\tconsole.log('Sending JSON data:', jsonData);\n\t\t},\n\t\thandleReorderSuccess($event) {\n\t\t\t// Alpine AJAX automatically replaced the songs section\n\t\t\tconsole.log('Songs reordered successfully');\n\t\t},\n\t\thandleReorderError($event) {\n\t\t\tconsole.error('Error reordering songs:', $event.detail);\n\t\t\talert('Error reordering songs');\n\t\t},\n\t\thandleSort(item, position) {\n\t\t\t// Get all song elements and their IDs in current order\n\t\t\tconst songElements = document.querySelectorAll('[data-song-id]');\n\t\t\tconst songOrder = Array.from(songElements).map(el => el.getAttribute('data-song-id'));\n\t\t\t\n\t\t\t// Send to server\n\t\t\tfetch(`/api/bands/songs/reorder?id=${new URLSearchParams(window.location.search).get('id')}`, {\n\t\t\t\tmethod: 'POST',\n\t\t\t\theaders: {\n\t\t\t\t\t'Content-Type': 'application/json',\n\t\t\t\t},\n\t\t\t\tbody: JSON.stringify({ song_order: songOrder })\n\t\t\t})\n\t\t\t.then(response => response.text())\n\t\t\t.then(html => {\n\t\t\t\tdocument.getElementById('songs-section').innerHTML = html;\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tconsole.error('Error reordering songs:', error);\n\t\t\t\talert('Error reordering songs');\n\t\t\t});\n\t\t}\n\t}\"><!-- Band Content --><div><!-- Header --><div class=\"mb-8\"><div class=\"flex justify-between items-start\"><div><h1 class=\"text-3xl font-bold text-gray-900\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(band.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 57, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 87, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -84,7 +84,7 @@ func BandDetailsContent(band *database.Band, members []*database.BandMember, son
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(band.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 58, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 88, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -97,7 +97,7 @@ func BandDetailsContent(band *database.Band, members []*database.BandMember, son
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(band.CreatedAt.Format("January 2, 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 59, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 89, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -123,7 +123,7 @@ func BandDetailsContent(band *database.Band, members []*database.BandMember, son
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(member.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 94, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 124, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -136,7 +136,7 @@ func BandDetailsContent(band *database.Band, members []*database.BandMember, son
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(member.Role)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 95, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 125, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -186,100 +186,126 @@ func SongsSection(songs []*database.Song) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"space-y-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"space-y-4\" x-sort=\"handleSort\" x-sort:config=\"{ \n\t\t\t\t\t\t\tanimation: 150,\n\t\t\t\t\t\t\tghostClass: 'sortable-ghost',\n\t\t\t\t\t\t\tchosenClass: 'sortable-chosen'\n\t\t\t\t\t\t}\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, song := range songs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors\"><div class=\"flex justify-between items-start\"><div class=\"flex-1\"><h3 class=\"text-lg font-medium text-gray-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors [body:not(.sorting)_&]:hover:bg-gray-50\" data-song-id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(song.Title)
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 198, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 235, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</h3><p class=\"text-sm text-gray-600\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" x-sort:item=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(song.Artist)
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 199, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 236, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</p><div class=\"mt-2 flex items-center space-x-4 text-xs text-gray-500\"><span>Key: ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"><div class=\"flex justify-between items-start\"><div class=\"flex-1\"><div class=\"flex items-center space-x-2\"><span x-sort:handle class=\"cursor-move text-gray-400 hover:text-gray-600\"><svg class=\"h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 8h16M4 16h16\"></path></svg></span><h3 class=\"text-lg font-medium text-gray-900\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(song.Key)
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(song.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 201, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 246, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span> <span>Added by ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</h3></div><p class=\"text-sm text-gray-600\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(song.User.Email)
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(song.Artist)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 202, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 248, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></div><p class=\"mt-2 text-sm text-gray-600\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</p><div class=\"mt-2 flex items-center space-x-4 text-xs text-gray-500\"><span>Key: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
-				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(song.Notes)
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(song.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 204, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 250, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</p></div><div class=\"flex space-x-2\"><button @click=\"editSong('{ song.ID }')\" class=\"text-indigo-600 hover:text-indigo-500 text-sm font-medium\">Edit</button><form method=\"delete\" action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span> <span>Added by ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var14 templ.SafeURL
-				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
+				var templ_7745c5c3_Var14 string
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(song.User.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 210, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 251, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" x-target=\"songs-section\" @ajax:before=\"confirm('Are you sure you want to delete this song?') || $event.preventDefault()\"><button type=\"submit\" class=\"text-red-600 hover:text-red-500 text-sm font-medium\">Delete</button></form></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></div><p class=\"mt-2 text-sm text-gray-600\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(song.Notes)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 253, Col: 60}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p></div><div class=\"flex space-x-2\"><button @click=\"editSong('{ song.ID }')\" class=\"text-indigo-600 hover:text-indigo-500 text-sm font-medium\">Edit</button><form method=\"delete\" action=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 templ.SafeURL
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 259, Col: 70}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" x-target=\"songs-section\" @ajax:before=\"confirm('Are you sure you want to delete this song?') || $event.preventDefault()\"><button type=\"submit\" class=\"text-red-600 hover:text-red-500 text-sm font-medium\">Delete</button></form></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
