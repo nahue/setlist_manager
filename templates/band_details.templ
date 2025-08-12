@@ -1,8 +1,11 @@
 package templates
 
-import "github.com/nahue/setlist_manager/internal/database"
+import (
+	"github.com/nahue/setlist_manager/internal/app/shared/types"
+	"github.com/nahue/setlist_manager/internal/store"
+)
 
-templ BandDetailsPage(band *database.Band, members []*database.BandMember, songs []*database.Song, userRole string) {
+templ BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string) {
 	@BaseLayout(PageData{
 		Title:       band.Name + " - Band Details",
 		Description: "View band information and manage songs",
@@ -10,7 +13,7 @@ templ BandDetailsPage(band *database.Band, members []*database.BandMember, songs
 	})
 }
 
-templ BandDetailsContent(band *database.Band, members []*database.BandMember, songs []*database.Song, userRole string) {
+templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string) {
 	<div
 		class="max-w-7xl mx-auto"
 		x-data="{ 
@@ -179,7 +182,7 @@ templ BandDetailsContent(band *database.Band, members []*database.BandMember, so
 	</script>
 }
 
-templ SongsSection(songs []*database.Song) {
+templ SongsSection(songs []*store.Song) {
 	<div id="songs-section">
 		<div class="bg-white shadow rounded-lg">
 			<div class="px-6 py-4 border-b border-gray-200">
@@ -248,7 +251,7 @@ templ SongsSection(songs []*database.Song) {
 	</div>
 }
 
-templ MembersSection(members []*database.BandMember, bandID string) {
+templ MembersSection(members []*types.BandMember, bandID string) {
 	<div id="members-section" class="bg-white shadow rounded-lg">
 		<div class="px-6 py-4 border-b border-gray-200">
 			<h2 class="text-lg font-medium text-gray-900">Members</h2>
@@ -269,12 +272,29 @@ templ MembersSection(members []*database.BandMember, bandID string) {
 								<p class="text-xs text-gray-500 capitalize">{ member.Role }</p>
 							</div>
 						</div>
+						if member.Role != "owner" {
+							<div class="flex items-center space-x-2">
+								<form
+									method="DELETE"
+									action={ "/api/bands/members/remove?id=" + bandID + "&user_id=" + member.UserID }
+									x-target="members-section"
+									@ajax:before="confirm('Are you sure you want to remove this member?') || $event.preventDefault()"
+								>
+									<button
+										type="submit"
+										class="text-red-600 hover:text-red-500 text-sm font-medium"
+									>
+										Remove
+									</button>
+								</form>
+							</div>
+						}
 					</div>
 				}
 			</div>
-			<!-- Invite Member Form -->
+			<!-- Add Member Form -->
 			<div class="mt-6 pt-6 border-t border-gray-200">
-				<h3 class="text-sm font-medium text-gray-900 mb-3">Invite New Member</h3>
+				<h3 class="text-sm font-medium text-gray-900 mb-3">Add New Member</h3>
 				<form
 					method="POST"
 					action={ "/api/bands/invite?id=" + bandID }
@@ -314,7 +334,74 @@ templ MembersSection(members []*database.BandMember, bandID string) {
 						type="submit"
 						class="w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 					>
-						Send Invitation
+						Add Member
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+}
+
+templ MembersSectionError(errorMsg string, bandID string) {
+	<div id="members-section" class="bg-white shadow rounded-lg">
+		<div class="px-6 py-4 border-b border-gray-200">
+			<h2 class="text-lg font-medium text-gray-900">Members</h2>
+			<p class="text-sm text-gray-500">Band members and their roles</p>
+		</div>
+		<div class="p-6">
+			<!-- Error Message -->
+			<div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+				<div class="flex items-center">
+					<svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+						<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+					</svg>
+					<span class="text-red-700">{ errorMsg }</span>
+				</div>
+			</div>
+			
+			<!-- Add Member Form -->
+			<div class="pt-6 border-t border-gray-200">
+				<h3 class="text-sm font-medium text-gray-900 mb-3">Add New Member</h3>
+				<form
+					method="POST"
+					action={ "/api/bands/invite?id=" + bandID }
+					x-target="members-section"
+					class="space-y-3"
+				>
+					<div>
+						<label class="block text-xs font-medium text-gray-700">Email *</label>
+						<input
+							type="email"
+							name="email"
+							required
+							class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
+							placeholder="Enter email address"
+						/>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-700">Name (optional)</label>
+						<input
+							type="text"
+							name="name"
+							class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
+							placeholder="Enter display name"
+						/>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-700">Role</label>
+						<select
+							name="role"
+							class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
+						>
+							<option value="member">Member</option>
+							<option value="admin">Admin</option>
+						</select>
+					</div>
+					<button
+						type="submit"
+						class="w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					>
+						Add Member
 					</button>
 				</form>
 			</div>
