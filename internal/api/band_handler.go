@@ -1,27 +1,26 @@
-package bands
+package api
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
 
-	"github.com/nahue/setlist_manager/internal/app/bands/database"
-	"github.com/nahue/setlist_manager/internal/app/shared"
 	"github.com/nahue/setlist_manager/internal/app/shared/types"
+	"github.com/nahue/setlist_manager/internal/services"
 	"github.com/nahue/setlist_manager/internal/store"
 	"github.com/nahue/setlist_manager/templates"
 )
 
 // Handler handles band-related requests
-type Handler struct {
-	bandsDB     *database.Database
+type BandHandler struct {
+	bandsDB     *store.SQLiteBandsStore
 	songsDB     *store.SQLiteSongsStore
-	authService *shared.AuthService
+	authService *services.AuthService
 }
 
 // NewHandler creates a new bands handler
-func NewHandler(bandsDB *database.Database, songsDB *store.SQLiteSongsStore, authService *shared.AuthService) *Handler {
-	return &Handler{
+func NewBandHandler(bandsDB *store.SQLiteBandsStore, songsDB *store.SQLiteSongsStore, authService *services.AuthService) *BandHandler {
+	return &BandHandler{
 		bandsDB:     bandsDB,
 		songsDB:     songsDB,
 		authService: authService,
@@ -45,19 +44,19 @@ type AcceptInvitationRequest struct {
 }
 
 // ServeBands handles GET /bands
-func (h *Handler) ServeBands(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) ServeBands(w http.ResponseWriter, r *http.Request) {
 	component := templates.BandsPage()
 	component.Render(r.Context(), w)
 }
 
 // ServeCreateBand handles GET /bands/create
-func (h *Handler) ServeCreateBand(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) ServeCreateBand(w http.ResponseWriter, r *http.Request) {
 	component := templates.CreateBandPage()
 	component.Render(r.Context(), w)
 }
 
 // ServeBand handles GET /bands/{bandID}
-func (h *Handler) ServeBand(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) ServeBand(w http.ResponseWriter, r *http.Request) {
 	bandID := r.URL.Query().Get("id")
 	if bandID == "" {
 		http.Error(w, "Band ID is required", http.StatusBadRequest)
@@ -114,19 +113,20 @@ func (h *Handler) ServeBand(w http.ResponseWriter, r *http.Request) {
 
 	// Determine user role
 	userRole := "member"
-	if member.Role == "owner" {
+	switch member.Role {
+	case "owner":
 		userRole = "owner"
-	} else if member.Role == "admin" {
+	case "admin":
 		userRole = "admin"
 	}
 
 	// Render band details page
-	component := templates.BandDetailsContent(band, members, songs, userRole)
+	component := templates.BandDetailsPage(band, members, songs, userRole)
 	component.Render(r.Context(), w)
 }
 
 // GetBands handles GET /api/bands
-func (h *Handler) GetBands(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) GetBands(w http.ResponseWriter, r *http.Request) {
 	// Get current user from session
 	user := h.getCurrentUser(r)
 	if user == nil {
@@ -151,7 +151,7 @@ func (h *Handler) GetBands(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateBand handles POST /api/bands
-func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	// Get current user from session
 	user := h.getCurrentUser(r)
 	if user == nil {
@@ -187,7 +187,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetBand handles GET /api/bands/band
-func (h *Handler) GetBand(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) GetBand(w http.ResponseWriter, r *http.Request) {
 	bandID := r.URL.Query().Get("id")
 	if bandID == "" {
 		http.Error(w, "Band ID is required", http.StatusBadRequest)
@@ -234,12 +234,12 @@ func (h *Handler) GetBand(w http.ResponseWriter, r *http.Request) {
 }
 
 // getCurrentUser gets the current user from the session
-func (h *Handler) getCurrentUser(r *http.Request) *types.User {
+func (h *BandHandler) getCurrentUser(r *http.Request) *types.User {
 	return h.authService.GetCurrentUser(r)
 }
 
 // InviteMember handles POST /api/bands/invite
-func (h *Handler) InviteMember(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) InviteMember(w http.ResponseWriter, r *http.Request) {
 	bandID := r.URL.Query().Get("id")
 	if bandID == "" {
 		// Return HTML error response
@@ -426,7 +426,7 @@ func (h *Handler) InviteMember(w http.ResponseWriter, r *http.Request) {
 }
 
 // RemoveMember handles DELETE /api/bands/members/remove
-func (h *Handler) RemoveMember(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 	bandID := r.URL.Query().Get("id")
 	if bandID == "" {
 		// Return HTML error response
@@ -577,7 +577,7 @@ func (h *Handler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetInvitations handles GET /api/invitations
-func (h *Handler) GetInvitations(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) GetInvitations(w http.ResponseWriter, r *http.Request) {
 	// Get current user from session
 	user := h.getCurrentUser(r)
 	if user == nil {
@@ -602,7 +602,7 @@ func (h *Handler) GetInvitations(w http.ResponseWriter, r *http.Request) {
 }
 
 // AcceptInvitation handles POST /api/invitations/accept
-func (h *Handler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
 	// Get current user from session
 	user := h.getCurrentUser(r)
 	if user == nil {
@@ -638,7 +638,7 @@ func (h *Handler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeclineInvitation handles POST /api/invitations/decline
-func (h *Handler) DeclineInvitation(w http.ResponseWriter, r *http.Request) {
+func (h *BandHandler) DeclineInvitation(w http.ResponseWriter, r *http.Request) {
 	var req AcceptInvitationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)

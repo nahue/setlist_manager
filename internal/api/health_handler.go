@@ -1,4 +1,4 @@
-package health
+package api
 
 import (
 	"encoding/json"
@@ -8,13 +8,13 @@ import (
 )
 
 // Handler handles health check requests
-type Handler struct {
+type HealthHandler struct {
 	db *database.Database
 }
 
 // NewHandler creates a new health handler
-func NewHandler(db *database.Database) *Handler {
-	return &Handler{
+func NewHealthHandler(db *database.Database) *HealthHandler {
+	return &HealthHandler{
 		db: db,
 	}
 }
@@ -27,7 +27,7 @@ type HealthResponse struct {
 }
 
 // HandleHealth handles GET /health
-func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
+func (h *HealthHandler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 	response := HealthResponse{
 		Status: "ok",
 	}
@@ -46,7 +46,7 @@ func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleReadiness handles GET /ready
-func (h *Handler) HandleReadiness(w http.ResponseWriter, r *http.Request) {
+func (h *HealthHandler) HandleReadiness(w http.ResponseWriter, r *http.Request) {
 	// Check if all dependencies are ready
 	if err := h.db.Ping(); err != nil {
 		http.Error(w, "Database not ready", http.StatusServiceUnavailable)
@@ -60,7 +60,7 @@ func (h *Handler) HandleReadiness(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleLiveness handles GET /live
-func (h *Handler) HandleLiveness(w http.ResponseWriter, r *http.Request) {
+func (h *HealthHandler) HandleLiveness(w http.ResponseWriter, r *http.Request) {
 	// Simple liveness check - just return OK
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))

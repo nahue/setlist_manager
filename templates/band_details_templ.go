@@ -389,7 +389,7 @@ func MembersSection(members []*types.BandMember, bandID string) templ.Component 
 	})
 }
 
-func MembersSectionError(errorMsg string, bandID string) templ.Component {
+func SongsSectionError(errorMsg string, bandID string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -410,33 +410,88 @@ func MembersSectionError(errorMsg string, bandID string) templ.Component {
 			templ_7745c5c3_Var20 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div id=\"members-section\" class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Members</h2><p class=\"text-sm text-gray-500\">Band members and their roles</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div id=\"songs-section\"><div class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Songs</h2><p class=\"text-sm text-gray-500\">Manage your band's song repertoire</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 358, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 359, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></div></div><!-- Add Member Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Member</h3><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></div></div><!-- Add Song Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Song</h3><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var22 templ.SafeURL
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs?id=" + bandID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 367, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 368, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" x-target=\"members-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Email *</label> <input type=\"email\" name=\"email\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter email address\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Name (optional)</label> <input type=\"text\" name=\"name\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter display name\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Role</label> <select name=\"role\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\"><option value=\"member\">Member</option> <option value=\"admin\">Admin</option></select></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Member</button></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" x-target=\"songs-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Title *</label> <input type=\"text\" name=\"title\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter song title\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Artist</label> <input type=\"text\" name=\"artist\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter artist name\"></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Key</label> <input type=\"text\" name=\"key\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"e.g., C, G, Am\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Tempo (BPM)</label> <input type=\"number\" name=\"tempo\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"e.g., 120\"></div></div><div><label class=\"block text-xs font-medium text-gray-700\">Notes</label> <textarea name=\"notes\" rows=\"3\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Add any notes about the song...\"></textarea></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Song</button></form></div></div></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func MembersSectionError(errorMsg string, bandID string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var23 == nil {
+			templ_7745c5c3_Var23 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div id=\"members-section\" class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Members</h2><p class=\"text-sm text-gray-500\">Band members and their roles</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var24 string
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 446, Col: 42}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></div></div><!-- Add Member Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Member</h3><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var25 templ.SafeURL
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 455, Col: 46}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" x-target=\"members-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Email *</label> <input type=\"email\" name=\"email\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter email address\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Name (optional)</label> <input type=\"text\" name=\"name\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter display name\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Role</label> <select name=\"role\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\"><option value=\"member\">Member</option> <option value=\"admin\">Admin</option></select></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Member</button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

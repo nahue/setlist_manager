@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"database/sql"
@@ -9,22 +9,13 @@ import (
 )
 
 // Database handles band-related database operations
-type Database struct {
+type SQLiteBandsStore struct {
 	db *sql.DB
 }
 
 // NewDatabase creates a new bands database instance
-func NewDatabase(db *sql.DB) *Database {
-	return &Database{db: db}
-}
-
-// User represents a user in the system
-type User struct {
-	ID        string     `json:"id"`
-	Email     string     `json:"email"`
-	CreatedAt time.Time  `json:"created_at"`
-	LastLogin *time.Time `json:"last_login,omitempty"`
-	IsActive  bool       `json:"is_active"`
+func NewSQLiteBandsStore(db *sql.DB) *SQLiteBandsStore {
+	return &SQLiteBandsStore{db: db}
 }
 
 // Band represents a band
@@ -66,7 +57,7 @@ type BandInvitation struct {
 }
 
 // CreateBand creates a new band
-func (d *Database) CreateBand(name, description, createdBy string) (*Band, error) {
+func (d *SQLiteBandsStore) CreateBand(name, description, createdBy string) (*Band, error) {
 	bandID := generateUUID()
 
 	query := `INSERT INTO bands (id, name, description, created_by) VALUES (?, ?, ?, ?)`
@@ -93,7 +84,7 @@ func (d *Database) CreateBand(name, description, createdBy string) (*Band, error
 }
 
 // GetBandByID gets a band by ID
-func (d *Database) GetBandByID(bandID string) (*Band, error) {
+func (d *SQLiteBandsStore) GetBandByID(bandID string) (*Band, error) {
 	query := `SELECT id, name, description, created_by, created_at, updated_at, is_active FROM bands WHERE id = ?`
 
 	var band Band
@@ -118,7 +109,7 @@ func (d *Database) GetBandByID(bandID string) (*Band, error) {
 }
 
 // GetBandsByUser gets all bands for a user
-func (d *Database) GetBandsByUser(userID string) ([]*Band, error) {
+func (d *SQLiteBandsStore) GetBandsByUser(userID string) ([]*Band, error) {
 	query := `
 		SELECT b.id, b.name, b.description, b.created_by, b.created_at, b.updated_at, b.is_active 
 		FROM bands b
@@ -155,7 +146,7 @@ func (d *Database) GetBandsByUser(userID string) ([]*Band, error) {
 }
 
 // AddBandMember adds a member to a band
-func (d *Database) AddBandMember(bandID, userID, role string) (*BandMember, error) {
+func (d *SQLiteBandsStore) AddBandMember(bandID, userID, role string) (*BandMember, error) {
 	memberID := generateUUID()
 
 	query := `INSERT INTO band_members (id, band_id, user_id, role) VALUES (?, ?, ?, ?)`
@@ -175,7 +166,7 @@ func (d *Database) AddBandMember(bandID, userID, role string) (*BandMember, erro
 }
 
 // GetBandMembers gets all members of a band
-func (d *Database) GetBandMembers(bandID string) ([]*BandMember, error) {
+func (d *SQLiteBandsStore) GetBandMembers(bandID string) ([]*BandMember, error) {
 	query := `
 		SELECT bm.id, bm.band_id, bm.user_id, bm.role, bm.joined_at, bm.is_active,
 		       u.id, u.email, u.created_at, u.last_login, u.is_active
@@ -226,7 +217,7 @@ func (d *Database) GetBandMembers(bandID string) ([]*BandMember, error) {
 }
 
 // GetBandMember gets a specific band member
-func (d *Database) GetBandMember(bandID, userID string) (*BandMember, error) {
+func (d *SQLiteBandsStore) GetBandMember(bandID, userID string) (*BandMember, error) {
 	query := `
 		SELECT id, band_id, user_id, role, joined_at, is_active
 		FROM band_members
@@ -254,7 +245,7 @@ func (d *Database) GetBandMember(bandID, userID string) (*BandMember, error) {
 }
 
 // RemoveBandMember removes a member from a band
-func (d *Database) RemoveBandMember(bandID, userID string) error {
+func (d *SQLiteBandsStore) RemoveBandMember(bandID, userID string) error {
 	query := `DELETE FROM band_members WHERE band_id = ? AND user_id = ?`
 	_, err := d.db.Exec(query, bandID, userID)
 	if err != nil {
@@ -264,7 +255,7 @@ func (d *Database) RemoveBandMember(bandID, userID string) error {
 }
 
 // GetUserByEmail gets a user by email
-func (d *Database) GetUserByEmail(email string) (*User, error) {
+func (d *SQLiteBandsStore) GetUserByEmail(email string) (*User, error) {
 	query := `SELECT id, email, created_at, last_login, is_active FROM users WHERE email = ?`
 
 	var user User
@@ -293,7 +284,7 @@ func (d *Database) GetUserByEmail(email string) (*User, error) {
 }
 
 // CreateBandInvitation creates a new band invitation
-func (d *Database) CreateBandInvitation(bandID, invitedEmail, invitedBy, role string, expiresAt time.Time) (*BandInvitation, error) {
+func (d *SQLiteBandsStore) CreateBandInvitation(bandID, invitedEmail, invitedBy, role string, expiresAt time.Time) (*BandInvitation, error) {
 	invitationID := generateUUID()
 
 	query := `INSERT INTO band_invitations (id, band_id, invited_email, invited_by, role, expires_at) VALUES (?, ?, ?, ?, ?, ?)`
@@ -315,7 +306,7 @@ func (d *Database) CreateBandInvitation(bandID, invitedEmail, invitedBy, role st
 }
 
 // GetBandInvitationByID gets a band invitation by ID
-func (d *Database) GetBandInvitationByID(invitationID string) (*BandInvitation, error) {
+func (d *SQLiteBandsStore) GetBandInvitationByID(invitationID string) (*BandInvitation, error) {
 	query := `
 		SELECT bi.id, bi.band_id, bi.invited_email, bi.invited_by, bi.role, bi.status, 
 		       bi.expires_at, bi.created_at, bi.accepted_at, bi.declined_at,
@@ -369,7 +360,7 @@ func (d *Database) GetBandInvitationByID(invitationID string) (*BandInvitation, 
 }
 
 // GetPendingInvitationsByEmail gets pending invitations for a user
-func (d *Database) GetPendingInvitationsByEmail(email string) ([]*BandInvitation, error) {
+func (d *SQLiteBandsStore) GetPendingInvitationsByEmail(email string) ([]*BandInvitation, error) {
 	query := `
 		SELECT bi.id, bi.band_id, bi.invited_email, bi.invited_by, bi.role, bi.status, 
 		       bi.expires_at, bi.created_at, bi.accepted_at, bi.declined_at,
@@ -430,7 +421,7 @@ func (d *Database) GetPendingInvitationsByEmail(email string) ([]*BandInvitation
 }
 
 // AcceptBandInvitation accepts a band invitation
-func (d *Database) AcceptBandInvitation(invitationID, userID string) error {
+func (d *SQLiteBandsStore) AcceptBandInvitation(invitationID, userID string) error {
 	// Get the invitation
 	invitation, err := d.GetBandInvitationByID(invitationID)
 	if err != nil {
@@ -474,7 +465,7 @@ func (d *Database) AcceptBandInvitation(invitationID, userID string) error {
 }
 
 // DeclineBandInvitation declines a band invitation
-func (d *Database) DeclineBandInvitation(invitationID string) error {
+func (d *SQLiteBandsStore) DeclineBandInvitation(invitationID string) error {
 	query := `UPDATE band_invitations SET status = 'declined', declined_at = ? WHERE id = ?`
 	_, err := d.db.Exec(query, time.Now(), invitationID)
 	if err != nil {
@@ -484,7 +475,7 @@ func (d *Database) DeclineBandInvitation(invitationID string) error {
 }
 
 // CleanupExpiredInvitations marks expired invitations as expired
-func (d *Database) CleanupExpiredInvitations() error {
+func (d *SQLiteBandsStore) CleanupExpiredInvitations() error {
 	query := `UPDATE band_invitations SET status = 'expired' WHERE status = 'pending' AND expires_at < ?`
 	_, err := d.db.Exec(query, time.Now())
 	if err != nil {
@@ -493,13 +484,8 @@ func (d *Database) CleanupExpiredInvitations() error {
 	return nil
 }
 
-// Helper function to generate UUID (simplified for SQLite)
-func generateUUID() string {
-	return fmt.Sprintf("%d", time.Now().UnixNano())
-}
-
 // Convert database types to shared types
-func (d *Database) GetBandMembersShared(bandID string) ([]*types.BandMember, error) {
+func (d *SQLiteBandsStore) GetBandMembersShared(bandID string) ([]*types.BandMember, error) {
 	members, err := d.GetBandMembers(bandID)
 	if err != nil {
 		return nil, err
@@ -530,7 +516,7 @@ func (d *Database) GetBandMembersShared(bandID string) ([]*types.BandMember, err
 	return sharedMembers, nil
 }
 
-func (d *Database) GetBandsByUserShared(userID string) ([]*types.Band, error) {
+func (d *SQLiteBandsStore) GetBandsByUserShared(userID string) ([]*types.Band, error) {
 	bands, err := d.GetBandsByUser(userID)
 	if err != nil {
 		return nil, err
@@ -553,7 +539,7 @@ func (d *Database) GetBandsByUserShared(userID string) ([]*types.Band, error) {
 	return sharedBands, nil
 }
 
-func (d *Database) GetBandByIDShared(bandID string) (*types.Band, error) {
+func (d *SQLiteBandsStore) GetBandByIDShared(bandID string) (*types.Band, error) {
 	band, err := d.GetBandByID(bandID)
 	if err != nil {
 		return nil, err

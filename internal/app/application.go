@@ -9,14 +9,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/nahue/setlist_manager/internal/app/auth"
-	authDB "github.com/nahue/setlist_manager/internal/app/auth/database"
-	"github.com/nahue/setlist_manager/internal/app/bands"
-	bandsDB "github.com/nahue/setlist_manager/internal/app/bands/database"
-	"github.com/nahue/setlist_manager/internal/app/health"
-	"github.com/nahue/setlist_manager/internal/app/shared"
-	"github.com/nahue/setlist_manager/internal/app/songs"
+	"github.com/nahue/setlist_manager/internal/api"
 	"github.com/nahue/setlist_manager/internal/database"
+	"github.com/nahue/setlist_manager/internal/services"
 	"github.com/nahue/setlist_manager/internal/store"
 )
 
@@ -25,11 +20,11 @@ type Application struct {
 	db            *database.Database
 	router        *chi.Mux
 	useAuth       bool
-	authHandler   *auth.Handler
-	bandsHandler  *bands.Handler
-	songsHandler  *songs.Handler
-	healthHandler *health.Handler
-	authService   *shared.AuthService
+	authHandler   *api.AuthHandler
+	bandsHandler  *api.BandHandler
+	songsHandler  *api.SongHandler
+	healthHandler *api.HealthHandler
+	authService   *services.AuthService
 }
 
 // NewApplication creates a new application instance with all dependencies
@@ -49,18 +44,18 @@ func NewApplication(db *database.Database) *Application {
 	}
 
 	// Create feature-specific database instances
-	authDatabase := authDB.NewDatabase(db.GetDB())
-	bandsDatabase := bandsDB.NewDatabase(db.GetDB())
+	authDatabase := store.NewSQLiteAuthStore(db.GetDB())
+	bandsDatabase := store.NewSQLiteBandsStore(db.GetDB())
 	songsDatabase := store.NewSQLiteSongsStore(db.GetDB())
 
 	// Create shared services
-	authService := shared.NewAuthService(authDatabase)
+	authService := services.NewAuthService(authDatabase)
 
 	// Create handlers
-	authHandler := auth.NewHandler(authDatabase, bandsDatabase)
-	bandsHandler := bands.NewHandler(bandsDatabase, songsDatabase, authService)
-	songsHandler := songs.NewHandler(songsDatabase, bandsDatabase, authService)
-	healthHandler := health.NewHandler(db)
+	authHandler := api.NewAuthHandler(authDatabase, bandsDatabase)
+	bandsHandler := api.NewBandHandler(bandsDatabase, songsDatabase, authService)
+	songsHandler := api.NewSongHandler(songsDatabase, bandsDatabase, authService)
+	healthHandler := api.NewHealthHandler(db)
 
 	app := &Application{
 		db:            db,

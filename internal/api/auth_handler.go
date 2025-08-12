@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"encoding/json"
@@ -6,11 +6,45 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/nahue/setlist_manager/internal/services"
+	"github.com/nahue/setlist_manager/internal/store"
 	"github.com/nahue/setlist_manager/templates"
 )
 
-// handleMagicLinkRequest handles POST /auth/magic-link
-func (app *Application) handleMagicLinkRequest(w http.ResponseWriter, r *http.Request) {
+// Handler handles authentication-related requests
+type AuthHandler struct {
+	authDB  *store.SQLiteAuthStore
+	bandsDB *store.SQLiteBandsStore
+}
+
+// NewHandler creates a new auth handler
+func NewAuthHandler(authDB *store.SQLiteAuthStore, bandsDB *store.SQLiteBandsStore) *AuthHandler {
+	return &AuthHandler{
+		authDB:  authDB,
+		bandsDB: bandsDB,
+	}
+}
+
+// MagicLinkRequest represents a magic link request
+type MagicLinkRequest struct {
+	Email string `json:"email"`
+}
+
+// MagicLinkResponse represents a magic link response
+type MagicLinkResponse struct {
+	Message string `json:"message"`
+	Success bool   `json:"success"`
+}
+
+// HandleLogin handles GET /auth/login
+func (h *AuthHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	errorMsg := r.URL.Query().Get("error")
+	component := templates.LoginPage(errorMsg)
+	component.Render(r.Context(), w)
+}
+
+// HandleMagicLinkRequest handles POST /auth/magic-link
+func (h *AuthHandler) HandleMagicLinkRequest(w http.ResponseWriter, r *http.Request) {
 	var req MagicLinkRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
@@ -20,7 +54,7 @@ func (app *Application) handleMagicLinkRequest(w http.ResponseWriter, r *http.Re
 	// Rate limiting would go here in production
 
 	// Generate magic link
-	authService := NewAuthService(app.db)
+	authService := services.NewAuthService(h.authDB)
 	token, err := authService.GenerateMagicLink(req.Email)
 	if err != nil {
 		log.Printf("Failed to generate magic link: %v", err)
@@ -42,15 +76,15 @@ func (app *Application) handleMagicLinkRequest(w http.ResponseWriter, r *http.Re
 	})
 }
 
-// handleMagicLinkVerification handles GET /auth/verify
-func (app *Application) handleMagicLinkVerification(w http.ResponseWriter, r *http.Request) {
+// HandleMagicLinkVerification handles GET /auth/verify
+func (h *AuthHandler) HandleMagicLinkVerification(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
 	if token == "" {
 		http.Error(w, "Token is required", http.StatusBadRequest)
 		return
 	}
 
-	authService := NewAuthService(app.db)
+	authService := services.NewAuthService(h.authDB)
 
 	// Verify magic link
 	user, err := authService.VerifyMagicLink(token)
@@ -83,7 +117,7 @@ func (app *Application) handleMagicLinkVerification(w http.ResponseWriter, r *ht
 	log.Printf("User authenticated successfully: %s", user.ID)
 
 	// Check if user has any bands, create default band if not
-	bands, err := app.db.GetBandsByUser(user.ID)
+	bands, err := h.bandsDB.GetBandsByUser(user.ID)
 	if err != nil {
 		log.Printf("Error checking user bands: %v", err)
 		// Continue anyway, don't fail the login
@@ -92,7 +126,7 @@ func (app *Application) handleMagicLinkVerification(w http.ResponseWriter, r *ht
 		defaultBandName := "My Band"
 		defaultBandDescription := "Your personal band for managing songs and setlists"
 
-		band, err := app.db.CreateBand(defaultBandName, defaultBandDescription, user.ID)
+		band, err := h.bandsDB.CreateBand(defaultBandName, defaultBandDescription, user.ID)
 		if err != nil {
 			log.Printf("Error creating default band: %v", err)
 			// Continue anyway, don't fail the login
@@ -101,27 +135,13 @@ func (app *Application) handleMagicLinkVerification(w http.ResponseWriter, r *ht
 		}
 	}
 
-	// Redirect to dashboard
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	// Redirect to bands page
+	http.Redirect(w, r, "/bands", http.StatusSeeOther)
 }
 
-// handleLogout handles POST /auth/logout
-func (app *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
-	// If authentication is disabled, redirect to main page
-	if !app.useAuth {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	// Get session token from cookie
-	cookie, err := r.Cookie("session_token")
-	if err == nil {
-		authService := NewAuthService(app.db)
-		// Delete session from database
-		_ = authService.DeleteSession(cookie.Value)
-	}
-
-	// Clear cookie
+// HandleLogout handles POST /auth/logout
+func (h *AuthHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
+	// Clear the session cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    "",
@@ -129,43 +149,51 @@ func (app *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   -1, // Delete cookie
+		MaxAge:   -1, // Delete the cookie
 	})
 
-	// Redirect to login
+	// Redirect to login page
 	http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 }
 
-// handleLogin handles GET /auth/login
-func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	// If authentication is disabled, redirect to main page
-	if !app.useAuth {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+// HandleCurrentUser handles GET /auth/me
+func (h *AuthHandler) HandleCurrentUser(w http.ResponseWriter, r *http.Request) {
+	// Get current user from session
+	user := h.getCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	// Check if already authenticated
-	if user := app.getCurrentUser(r); user != nil {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	// Get error message if any
-	errorMsg := r.URL.Query().Get("error")
-
-	// Render login page
-	component := templates.LoginPage(errorMsg)
-	component.Render(r.Context(), w)
+	// Return user info
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":    user.ID,
+		"email": user.Email,
+	})
 }
 
-// handleCurrentUser handles GET /auth/me
-func (app *Application) handleCurrentUser(w http.ResponseWriter, r *http.Request) {
-	user := app.getCurrentUser(r)
-	if user == nil {
-		http.Error(w, "Not authenticated", http.StatusUnauthorized)
-		return
+// getCurrentUser gets the current user from the session
+func (h *AuthHandler) getCurrentUser(r *http.Request) *store.User {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		return nil
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	authService := services.NewAuthService(h.authDB)
+	user, err := authService.GetUserFromSession(cookie.Value)
+	if err != nil {
+		return nil
+	}
+
+	return user
+}
+
+// getBaseURL gets the base URL for the application
+func getBaseURL(r *http.Request) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s", scheme, r.Host)
 }

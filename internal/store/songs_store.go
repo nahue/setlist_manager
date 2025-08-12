@@ -16,15 +16,6 @@ func NewSQLiteSongsStore(db *sql.DB) *SQLiteSongsStore {
 	return &SQLiteSongsStore{db: db}
 }
 
-// User represents a user in the system
-type User struct {
-	ID        string     `json:"id"`
-	Email     string     `json:"email"`
-	CreatedAt time.Time  `json:"created_at"`
-	LastLogin *time.Time `json:"last_login,omitempty"`
-	IsActive  bool       `json:"is_active"`
-}
-
 // Song represents a song
 type Song struct {
 	ID        string    `json:"id"`
@@ -222,9 +213,4 @@ func (d *SQLiteSongsStore) ReorderSongs(bandID string, songOrder []string) error
 	}
 
 	return nil
-}
-
-// Helper function to generate UUID (simplified for SQLite)
-func generateUUID() string {
-	return fmt.Sprintf("%d", time.Now().UnixNano())
 }

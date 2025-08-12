@@ -1,4 +1,4 @@
-package database
+package store
 
 import (
 	"database/sql"
@@ -7,13 +7,13 @@ import (
 )
 
 // Database handles auth-related database operations
-type Database struct {
+type SQLiteAuthStore struct {
 	db *sql.DB
 }
 
 // NewDatabase creates a new auth database instance
-func NewDatabase(db *sql.DB) *Database {
-	return &Database{db: db}
+func NewSQLiteAuthStore(db *sql.DB) *SQLiteAuthStore {
+	return &SQLiteAuthStore{db: db}
 }
 
 // User represents a user in the system
@@ -45,7 +45,7 @@ type Session struct {
 }
 
 // CreateUser creates a new user
-func (d *Database) CreateUser(email string) (*User, error) {
+func (d *SQLiteAuthStore) CreateUser(email string) (*User, error) {
 	userID := generateUUID()
 
 	query := `INSERT INTO users (id, email) VALUES (?, ?)`
@@ -63,7 +63,7 @@ func (d *Database) CreateUser(email string) (*User, error) {
 }
 
 // GetUserByEmail gets a user by email
-func (d *Database) GetUserByEmail(email string) (*User, error) {
+func (d *SQLiteAuthStore) GetUserByEmail(email string) (*User, error) {
 	query := `SELECT id, email, created_at, last_login, is_active FROM users WHERE email = ?`
 
 	var user User
@@ -92,7 +92,7 @@ func (d *Database) GetUserByEmail(email string) (*User, error) {
 }
 
 // GetUserByID gets a user by ID
-func (d *Database) GetUserByID(userID string) (*User, error) {
+func (d *SQLiteAuthStore) GetUserByID(userID string) (*User, error) {
 	query := `SELECT id, email, created_at, last_login, is_active FROM users WHERE id = ?`
 
 	var user User
@@ -121,7 +121,7 @@ func (d *Database) GetUserByID(userID string) (*User, error) {
 }
 
 // UpdateUserLastLogin updates the user's last login time
-func (d *Database) UpdateUserLastLogin(userID string) error {
+func (d *SQLiteAuthStore) UpdateUserLastLogin(userID string) error {
 	query := `UPDATE users SET last_login = ? WHERE id = ?`
 	_, err := d.db.Exec(query, time.Now(), userID)
 	if err != nil {
@@ -131,7 +131,7 @@ func (d *Database) UpdateUserLastLogin(userID string) error {
 }
 
 // CreateMagicLink creates a new magic link
-func (d *Database) CreateMagicLink(userID, tokenHash string, expiresAt time.Time) (*MagicLink, error) {
+func (d *SQLiteAuthStore) CreateMagicLink(userID, tokenHash string, expiresAt time.Time) (*MagicLink, error) {
 	magicLinkID := generateUUID()
 
 	query := `INSERT INTO magic_links (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, ?)`
@@ -150,7 +150,7 @@ func (d *Database) CreateMagicLink(userID, tokenHash string, expiresAt time.Time
 }
 
 // GetMagicLinkByTokenHash gets a magic link by token hash
-func (d *Database) GetMagicLinkByTokenHash(tokenHash string) (*MagicLink, error) {
+func (d *SQLiteAuthStore) GetMagicLinkByTokenHash(tokenHash string) (*MagicLink, error) {
 	query := `SELECT id, user_id, token_hash, expires_at, used_at, created_at FROM magic_links WHERE token_hash = ?`
 
 	var magicLink MagicLink
@@ -180,7 +180,7 @@ func (d *Database) GetMagicLinkByTokenHash(tokenHash string) (*MagicLink, error)
 }
 
 // MarkMagicLinkAsUsed marks a magic link as used
-func (d *Database) MarkMagicLinkAsUsed(magicLinkID string) error {
+func (d *SQLiteAuthStore) MarkMagicLinkAsUsed(magicLinkID string) error {
 	query := `UPDATE magic_links SET used_at = ? WHERE id = ?`
 	_, err := d.db.Exec(query, time.Now(), magicLinkID)
 	if err != nil {
@@ -190,7 +190,7 @@ func (d *Database) MarkMagicLinkAsUsed(magicLinkID string) error {
 }
 
 // CleanupExpiredMagicLinks removes expired magic links
-func (d *Database) CleanupExpiredMagicLinks() error {
+func (d *SQLiteAuthStore) CleanupExpiredMagicLinks() error {
 	query := `DELETE FROM magic_links WHERE expires_at < ?`
 	_, err := d.db.Exec(query, time.Now())
 	if err != nil {
@@ -200,7 +200,7 @@ func (d *Database) CleanupExpiredMagicLinks() error {
 }
 
 // CreateSession creates a new session
-func (d *Database) CreateSession(userID, sessionToken string, expiresAt time.Time) (*Session, error) {
+func (d *SQLiteAuthStore) CreateSession(userID, sessionToken string, expiresAt time.Time) (*Session, error) {
 	sessionID := generateUUID()
 
 	query := `INSERT INTO sessions (id, user_id, session_token, expires_at) VALUES (?, ?, ?, ?)`
@@ -219,7 +219,7 @@ func (d *Database) CreateSession(userID, sessionToken string, expiresAt time.Tim
 }
 
 // GetSessionByToken gets a session by token
-func (d *Database) GetSessionByToken(sessionToken string) (*Session, error) {
+func (d *SQLiteAuthStore) GetSessionByToken(sessionToken string) (*Session, error) {
 	query := `SELECT id, user_id, session_token, expires_at, created_at FROM sessions WHERE session_token = ?`
 
 	var session Session
@@ -243,7 +243,7 @@ func (d *Database) GetSessionByToken(sessionToken string) (*Session, error) {
 }
 
 // DeleteSession deletes a session
-func (d *Database) DeleteSession(sessionToken string) error {
+func (d *SQLiteAuthStore) DeleteSession(sessionToken string) error {
 	query := `DELETE FROM sessions WHERE session_token = ?`
 	_, err := d.db.Exec(query, sessionToken)
 	if err != nil {
@@ -253,16 +253,11 @@ func (d *Database) DeleteSession(sessionToken string) error {
 }
 
 // CleanupExpiredSessions removes expired sessions
-func (d *Database) CleanupExpiredSessions() error {
+func (d *SQLiteAuthStore) CleanupExpiredSessions() error {
 	query := `DELETE FROM sessions WHERE expires_at < ?`
 	_, err := d.db.Exec(query, time.Now())
 	if err != nil {
 		return fmt.Errorf("failed to cleanup expired sessions: %w", err)
 	}
 	return nil
-}
-
-// Helper function to generate UUID (simplified for SQLite)
-func generateUUID() string {
-	return fmt.Sprintf("%d", time.Now().UnixNano())
 }

@@ -1,22 +1,24 @@
-package auth
+package services
 
 import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/nahue/setlist_manager/internal/app/auth/database"
+	"github.com/nahue/setlist_manager/internal/app/shared/types"
+	"github.com/nahue/setlist_manager/internal/store"
 )
 
 // AuthService handles authentication logic
 type AuthService struct {
-	db *database.Database
+	db *store.SQLiteAuthStore
 }
 
 // NewAuthService creates a new auth service
-func NewAuthService(db *database.Database) *AuthService {
+func NewAuthService(db *store.SQLiteAuthStore) *AuthService {
 	return &AuthService{
 		db: db,
 	}
@@ -56,7 +58,7 @@ func (s *AuthService) GenerateMagicLink(email string) (string, error) {
 }
 
 // VerifyMagicLink verifies a magic link token and returns the user
-func (s *AuthService) VerifyMagicLink(token string) (*database.User, error) {
+func (s *AuthService) VerifyMagicLink(token string) (*store.User, error) {
 	// Hash the token for comparison
 	tokenHash := hashToken(token)
 
@@ -125,7 +127,7 @@ func (s *AuthService) CreateSession(userID string) (string, error) {
 }
 
 // GetUserFromSession gets the user from a session token
-func (s *AuthService) GetUserFromSession(sessionToken string) (*database.User, error) {
+func (s *AuthService) GetUserFromSession(sessionToken string) (*store.User, error) {
 	// Hash the session token for comparison
 	sessionTokenHash := hashToken(sessionToken)
 
@@ -155,6 +157,46 @@ func (s *AuthService) GetUserFromSession(sessionToken string) (*database.User, e
 	}
 
 	return user, nil
+}
+
+func (s *AuthService) GetCurrentUser(r *http.Request) *types.User {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		return nil
+	}
+
+	// Hash the session token for comparison
+	sessionTokenHash := hashToken(cookie.Value)
+
+	// Find session
+	session, err := s.db.GetSessionByToken(sessionTokenHash)
+	if err != nil {
+		return nil
+	}
+
+	if session == nil {
+		return nil
+	}
+
+	// Check if session is expired
+	if time.Now().After(session.ExpiresAt) {
+		return nil
+	}
+
+	// Get user
+	user, err := s.db.GetUserByID(session.UserID)
+	if err != nil {
+		return nil
+	}
+
+	// Convert database.User to types.User
+	return &types.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		LastLogin: user.LastLogin,
+		IsActive:  user.IsActive,
+	}
 }
 
 // generateRandomToken generates a random token
