@@ -9,7 +9,7 @@ tasks:
   build:
     desc: Build the application
     cmds:
-      - go build -o pr-toolbox-go .
+      - go build -o setlist_manager .
 
   test:
     desc: Run tests
@@ -19,7 +19,7 @@ tasks:
   clean:
     desc: Clean build artifacts
     cmds:
-      - rm -f pr-toolbox-go
+      - rm -f setlist_manager
 
   deps:
     desc: Install dependencies

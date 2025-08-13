@@ -30,7 +30,7 @@ func LoginPage(errorMsg string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = BaseLayout(PageData{
-			Title:       "Login - PR Toolbox",
+			Title:       "Login - Setlist Manager",
 			Description: "Sign in to your account",
 			Content:     LoginContent(errorMsg),
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -62,7 +62,7 @@ func LoginContent(errorMsg string) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8\"><div class=\"max-w-md w-full space-y-8\"><div><img class=\"mx-auto h-12 w-auto\" src=\"https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500\" alt=\"PR Toolbox\"><h2 class=\"mt-6 text-center text-3xl font-extrabold text-gray-900\">Sign in to your account</h2><p class=\"mt-2 text-center text-sm text-gray-600\">We'll send you a magic link to sign in instantly</p></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8\"><div class=\"max-w-md w-full space-y-8\"><div><img class=\"mx-auto h-12 w-auto\" src=\"https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500\" alt=\"Setlist Manager\"><h2 class=\"mt-6 text-center text-3xl font-extrabold text-gray-900\">Sign in to your account</h2><p class=\"mt-2 text-center text-sm text-gray-600\">We'll send you a magic link to sign in instantly</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
