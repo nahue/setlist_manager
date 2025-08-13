@@ -13,7 +13,7 @@ import (
 	"github.com/nahue/setlist_manager/internal/store"
 )
 
-func BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string) templ.Component {
+func BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string, user *types.User) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -35,9 +35,10 @@ func BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*sto
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = BaseLayout(PageData{
-			Title:       band.Name + " - Band Details",
-			Description: "View band information and manage songs",
+			Title:       band.Name,
+			Description: "Manage your band's setlist and members",
 			Content:     BandDetailsContent(band, members, songs, userRole),
+			User:        user,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -74,7 +75,7 @@ func BandDetailsContent(band *types.Band, members []*types.BandMember, songs []*
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(band.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 90, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 91, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -87,7 +88,7 @@ func BandDetailsContent(band *types.Band, members []*types.BandMember, songs []*
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(band.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 91, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 92, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -100,7 +101,7 @@ func BandDetailsContent(band *types.Band, members []*types.BandMember, songs []*
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(band.CreatedAt.Format("January 2, 2006"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 92, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 93, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -173,7 +174,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 214, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 215, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -186,7 +187,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 215, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 216, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -199,7 +200,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(song.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 225, Col: 69}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 226, Col: 69}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -212,7 +213,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(song.Artist)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 227, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 228, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -225,7 +226,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(song.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 229, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 230, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -238,7 +239,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(song.User.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 230, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 231, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -251,7 +252,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(song.Notes)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 232, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 233, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -264,7 +265,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var14 templ.SafeURL
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 238, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 239, Col: 70}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -321,7 +322,7 @@ func MembersSection(members []*types.BandMember, bandID string) templ.Component 
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(member.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 271, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 272, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -334,7 +335,7 @@ func MembersSection(members []*types.BandMember, bandID string) templ.Component 
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(member.Role)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 272, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 273, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -352,7 +353,7 @@ func MembersSection(members []*types.BandMember, bandID string) templ.Component 
 				var templ_7745c5c3_Var18 templ.SafeURL
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/members/remove?id=" + bandID + "&user_id=" + member.UserID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 279, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 280, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -375,7 +376,7 @@ func MembersSection(members []*types.BandMember, bandID string) templ.Component 
 		var templ_7745c5c3_Var19 templ.SafeURL
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 300, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 301, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -417,7 +418,7 @@ func SongsSectionError(errorMsg string, bandID string) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 359, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 360, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -430,7 +431,7 @@ func SongsSectionError(errorMsg string, bandID string) templ.Component {
 		var templ_7745c5c3_Var22 templ.SafeURL
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs?id=" + bandID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 368, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 369, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -472,7 +473,7 @@ func MembersSectionError(errorMsg string, bandID string) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 446, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 447, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -485,7 +486,7 @@ func MembersSectionError(errorMsg string, bandID string) templ.Component {
 		var templ_7745c5c3_Var25 templ.SafeURL
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 455, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 456, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {

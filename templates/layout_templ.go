@@ -8,10 +8,13 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "github.com/nahue/setlist_manager/internal/app/shared/types"
+
 type PageData struct {
 	Title       string
 	Description string
 	Content     templ.Component
+	User        *types.User
 }
 
 func BaseLayout(data PageData) templ.Component {
@@ -42,39 +45,121 @@ func BaseLayout(data PageData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(data.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 15, Col: 22}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 18, Col: 22}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><script defer src=\"https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.x.x/dist/cdn.min.js\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js\"></script><script src=\"https://cdn.tailwindcss.com\"></script><script>\n\t\t\t\ttailwind.config = {\n\t\t\t\t\ttheme: {\n\t\t\t\t\t\textend: {\n\t\t\t\t\t\t\tcolors: {\n\t\t\t\t\t\t\t\tprimary: {\n\t\t\t\t\t\t\t\t\t50: '#eff6ff',\n\t\t\t\t\t\t\t\t\t500: '#667eea',\n\t\t\t\t\t\t\t\t\t600: '#5a6fd8',\n\t\t\t\t\t\t\t\t\t700: '#4c63d2'\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</script><style>\n\t\t\t\t.sortable-ghost {\n\t\t\t\t\topacity: 0.5 !important;\n\t\t\t\t\tbackground-color: #f3f4f6 !important;\n\t\t\t\t}\n\t\t\t\t.sortable-chosen {\n\t\t\t\t\tbackground-color: #dbeafe !important;\n\t\t\t\t\tborder-color: #3b82f6 !important;\n\t\t\t\t}\n\t\t\t</style></head><body class=\"h-full\"><div class=\"min-h-full\"><nav class=\"bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg\" x-data=\"{ mobileMenuOpen: false }\"><div class=\"mx-auto max-w-7xl px-4 sm:px-6 lg:px-8\"><div class=\"flex h-16 items-center justify-between\"><!-- Logo and Brand --><div class=\"flex items-center\"><div class=\"flex-shrink-0\"><div class=\"flex items-center\"><svg class=\"h-8 w-8 text-white\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"></path></svg> <span class=\"ml-2 text-xl font-bold text-white\">Setlist Manager</span></div></div><!-- Desktop Navigation --><div class=\"hidden md:block\"><div class=\"ml-10 flex items-baseline space-x-4\"><a href=\"/\" class=\"rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\"></path></svg> Home</a> <a href=\"/bands\" class=\"rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z\"></path></svg> Bands</a> <a href=\"/bands/create\" class=\"rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 6v6m0 0v6m0-6h6m-6 0H6\"></path></svg> Create Band</a></div></div></div><!-- Right side - User menu and mobile button --><div class=\"flex items-center\"><!-- Notifications (placeholder for future) --><div class=\"hidden md:block\"><button type=\"button\" class=\"relative rounded-full p-2 text-white hover:bg-white/10 transition-colors duration-200\"><span class=\"absolute -inset-1.5\"></span> <span class=\"sr-only\">View notifications</span> <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" class=\"size-5\"><path d=\"M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div><!-- User menu --><div class=\"hidden md:block ml-3\"><div class=\"flex items-center space-x-3\"><!-- User avatar placeholder --><div class=\"h-8 w-8 rounded-full bg-white/20 flex items-center justify-center\"><svg class=\"h-5 w-5 text-white\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg></div><!-- Logout button --><form method=\"POST\" action=\"/auth/logout\" class=\"inline\"><button type=\"submit\" class=\"text-white hover:text-white/80 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1\"></path></svg> Sign Out</button></form></div></div><!-- Mobile menu button --><div class=\"md:hidden\"><button @click=\"mobileMenuOpen = !mobileMenuOpen\" type=\"button\" class=\"relative inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-white/10 transition-colors duration-200\"><span class=\"absolute -inset-0.5\"></span> <span class=\"sr-only\">Open main menu</span> <svg x-show=\"!mobileMenuOpen\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" class=\"size-6\"><path d=\"M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg> <svg x-show=\"mobileMenuOpen\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" class=\"size-6\"><path d=\"M6 18L18 6M6 6l12 12\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div></div></div></div><!-- Mobile menu --><div x-show=\"mobileMenuOpen\" x-transition:enter=\"transition ease-out duration-100 transform\" x-transition:enter-start=\"opacity-0 scale-95\" x-transition:enter-end=\"opacity-100 scale-100\" x-transition:leave=\"transition ease-in duration-75 transform\" x-transition:leave-start=\"opacity-100 scale-100\" x-transition:leave-end=\"opacity-0 scale-95\" class=\"md:hidden\"><div class=\"space-y-1 px-2 pb-3 pt-2\"><a href=\"/\" class=\"block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\"></path></svg> Home</a> <a href=\"/bands\" class=\"block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z\"></path></svg> Bands</a> <a href=\"/bands/create\" class=\"block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 6v6m0 0v6m0-6h6m-6 0H6\"></path></svg> Create Band</a><div class=\"border-t border-white/20 pt-4\"><form method=\"POST\" action=\"/auth/logout\" class=\"block\"><button type=\"submit\" class=\"w-full text-left rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1\"></path></svg> Sign Out</button></form></div></div></div></nav><header class=\"relative bg-white shadow-sm\"><div class=\"mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8\"><h1 class=\"text-3xl font-bold tracking-tight text-gray-900\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><script defer src=\"https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.12.4/dist/cdn.min.js\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.x.x/dist/cdn.min.js\"></script><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js\"></script><script src=\"https://cdn.tailwindcss.com\"></script><script>\n\t\t\t\ttailwind.config = {\n\t\t\t\t\ttheme: {\n\t\t\t\t\t\textend: {\n\t\t\t\t\t\t\tcolors: {\n\t\t\t\t\t\t\t\tprimary: {\n\t\t\t\t\t\t\t\t\t50: '#eff6ff',\n\t\t\t\t\t\t\t\t\t500: '#667eea',\n\t\t\t\t\t\t\t\t\t600: '#5a6fd8',\n\t\t\t\t\t\t\t\t\t700: '#4c63d2'\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</script><style>\n\t\t\t\t.sortable-ghost {\n\t\t\t\t\topacity: 0.5 !important;\n\t\t\t\t\tbackground-color: #f3f4f6 !important;\n\t\t\t\t}\n\t\t\t\t.sortable-chosen {\n\t\t\t\t\tbackground-color: #dbeafe !important;\n\t\t\t\t\tborder-color: #3b82f6 !important;\n\t\t\t\t}\n\t\t\t</style></head><body class=\"h-full\"><div class=\"min-h-full\"><nav class=\"bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg\" x-data=\"{ mobileMenuOpen: false, profileDropdownOpen: false }\"><div class=\"mx-auto max-w-7xl px-4 sm:px-6 lg:px-8\"><div class=\"flex h-16 items-center justify-between\"><!-- Logo and Brand --><div class=\"flex items-center\"><div class=\"flex-shrink-0\"><div class=\"flex items-center\"><svg class=\"h-8 w-8 text-white\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"></path></svg> <span class=\"ml-2 text-xl font-bold text-white\">Setlist Manager</span></div></div><!-- Desktop Navigation --><div class=\"hidden md:block\"><div class=\"ml-10 flex items-baseline space-x-4\"><a href=\"/\" class=\"rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\"></path></svg> Home</a> <a href=\"/bands\" class=\"rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z\"></path></svg> Bands</a> <a href=\"/bands/create\" class=\"rounded-md px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 6v6m0 0v6m0-6h6m-6 0H6\"></path></svg> Create Band</a></div></div></div><!-- Right side - User menu and mobile button --><div class=\"flex items-center\"><!-- Notifications (placeholder for future) --><div class=\"hidden md:block\"><button type=\"button\" class=\"relative rounded-full p-2 text-white hover:bg-white/10 transition-colors duration-200\"><span class=\"absolute -inset-1.5\"></span> <span class=\"sr-only\">View notifications</span> <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" class=\"size-5\"><path d=\"M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div><!-- Profile dropdown -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Title)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 177, Col: 78}
+		if data.User != nil {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"hidden md:block ml-3 relative\"><div><button @click=\"profileDropdownOpen = !profileDropdownOpen\" type=\"button\" class=\"relative flex max-w-xs items-center rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600\" id=\"user-menu-button\" aria-expanded=\"false\" aria-haspopup=\"true\"><span class=\"sr-only\">Open user menu</span><div class=\"h-8 w-8 rounded-full bg-white/20 flex items-center justify-center\"><svg class=\"h-5 w-5 text-white\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg></div></button></div><!-- Profile dropdown menu --><div x-show=\"profileDropdownOpen\" @click.away=\"profileDropdownOpen = false\" x-transition:enter=\"transition ease-out duration-100\" x-transition:enter-start=\"transform opacity-0 scale-95\" x-transition:enter-end=\"transform opacity-100 scale-100\" x-transition:leave=\"transition ease-in duration-75\" x-transition:leave-start=\"transform opacity-100 scale-100\" x-transition:leave-end=\"transform opacity-0 scale-95\" class=\"absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none\" role=\"menu\" aria-orientation=\"vertical\" aria-labelledby=\"user-menu-button\" tabindex=\"-1\"><!-- User info --><div class=\"px-4 py-2 text-sm text-gray-700 border-b border-gray-100\"><div class=\"font-medium text-gray-900\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.User.Email)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 130, Col: 68}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><div class=\"text-gray-500\">Member since ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.User.CreatedAt.Format("Jan 2006"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 131, Col: 92}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div><!-- Menu items --><a href=\"#\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\" tabindex=\"-1\" id=\"user-menu-item-0\">Your Profile</a> <a href=\"#\" class=\"block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\" tabindex=\"-1\" id=\"user-menu-item-1\">Settings</a><!-- Sign out --><form method=\"POST\" action=\"/auth/logout\" class=\"block\"><button type=\"submit\" class=\"w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100\" role=\"menuitem\" tabindex=\"-1\" id=\"user-menu-item-2\">Sign out</button></form></div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<!-- Fallback for when user is not available --> <div class=\"hidden md:block ml-3\"><form method=\"POST\" action=\"/auth/logout\" class=\"inline\"><button type=\"submit\" class=\"text-white hover:text-white/80 text-sm font-medium px-3 py-2 rounded-md hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-4 w-4 mr-1\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1\"></path></svg> Sign Out</button></form></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- Mobile menu button --><div class=\"md:hidden\"><button @click=\"mobileMenuOpen = !mobileMenuOpen\" type=\"button\" class=\"relative inline-flex items-center justify-center rounded-md p-2 text-white hover:bg-white/10 transition-colors duration-200\"><span class=\"absolute -inset-0.5\"></span> <span class=\"sr-only\">Open main menu</span> <svg x-show=\"!mobileMenuOpen\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" class=\"size-6\"><path d=\"M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg> <svg x-show=\"mobileMenuOpen\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" class=\"size-6\"><path d=\"M6 18L18 6M6 6l12 12\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path></svg></button></div></div></div></div><!-- Mobile menu --><div x-show=\"mobileMenuOpen\" x-transition:enter=\"transition ease-out duration-100 transform\" x-transition:enter-start=\"opacity-0 scale-95\" x-transition:enter-end=\"opacity-100 scale-100\" x-transition:leave=\"transition ease-in duration-75 transform\" x-transition:leave-start=\"opacity-100 scale-100\" x-transition:leave-end=\"opacity-0 scale-95\" class=\"md:hidden\"><div class=\"space-y-1 px-2 pb-3 pt-2\"><a href=\"/\" class=\"block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6\"></path></svg> Home</a> <a href=\"/bands\" class=\"block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z\"></path></svg> Bands</a> <a href=\"/bands/create\" class=\"block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 6v6m0 0v6m0-6h6m-6 0H6\"></path></svg> Create Band</a><!-- Mobile user section -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h1><p class=\"mt-2 text-sm text-gray-600\">")
+		if data.User != nil {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"border-t border-white/20 pt-4\"><div class=\"flex items-center px-4 pb-3\"><div class=\"h-10 w-10 rounded-full bg-white/20 flex items-center justify-center\"><svg class=\"h-6 w-6 text-white\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg></div><div class=\"ml-3\"><div class=\"text-base font-medium text-white\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.User.Email)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 209, Col: 74}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"text-sm font-medium text-white/80\">Member since ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.User.CreatedAt.Format("Jan 2006"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 210, Col: 111}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><a href=\"#\" class=\"block px-4 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200\">Your Profile</a> <a href=\"#\" class=\"block px-4 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200\">Settings</a><form method=\"POST\" action=\"/auth/logout\" class=\"block\"><button type=\"submit\" class=\"w-full text-left rounded-md px-4 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1\"></path></svg> Sign Out</button></form></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"border-t border-white/20 pt-4\"><form method=\"POST\" action=\"/auth/logout\" class=\"block\"><button type=\"submit\" class=\"w-full text-left rounded-md px-4 py-2 text-base font-medium text-white hover:bg-white/10 transition-colors duration-200 flex items-center\"><svg class=\"h-5 w-5 mr-2\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1\"></path></svg> Sign Out</button></form></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></nav><header class=\"relative bg-white shadow-sm\"><div class=\"mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8\"><h1 class=\"text-3xl font-bold tracking-tight text-gray-900\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.Description)
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 178, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 242, Col: 78}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div></header><main><div class=\"mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</h1><p class=\"mt-2 text-sm text-gray-600\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Description)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layout.templ`, Line: 243, Col: 62}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p></div></header><main><div class=\"mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -82,7 +167,7 @@ func BaseLayout(data PageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></main></div></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></main></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -33,8 +33,6 @@ tasks:
 
   dev:
     desc: Run with Air for hot reloading
-    env:
-      USE_AUTH: true
     deps: [templ]
     cmds:
       - air

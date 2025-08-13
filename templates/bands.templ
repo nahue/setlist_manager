@@ -1,14 +1,17 @@
 package templates
 
-templ BandsPage() {
+import "github.com/nahue/setlist_manager/internal/app/shared/types"
+
+templ BandsPage(user *types.User) {
 	@BaseLayout(PageData{
-		Title:       "My Bands",
-		Description: "Manage your bands and invitations",
-		Content:     BandsContent(),
+		Title: "Bands",
+		Description: "Manage your bands and setlists",
+		Content: BandsContent(user),
+		User: user,
 	})
 }
 
-templ BandsContent() {
+templ BandsContent(user *types.User) {
 	<div class="max-w-6xl mx-auto">
 		<div class="mb-8">
 			<div class="flex justify-between items-center">

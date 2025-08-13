@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/nahue/setlist_manager/internal/app"
 	"github.com/nahue/setlist_manager/internal/database"
+	"github.com/nahue/setlist_manager/internal/store"
 )
 
 func main() {
@@ -21,8 +22,13 @@ func main() {
 	}
 	defer db.Close()
 
-	// Create application with all dependencies
-	application := app.NewApplication(db)
+	// Create feature-specific database instances
+	authStore := store.NewSQLiteAuthStore(db.GetDB())
+	bandsStore := store.NewSQLiteBandsStore(db.GetDB())
+	songsStore := store.NewSQLiteSongsStore(db.GetDB())
+
+	// Create application with all dependencies - always use authentication
+	application := app.NewApplication(db, authStore, bandsStore, songsStore)
 
 	// Start server
 	log.Fatal(application.Start("9090"))

@@ -5,11 +5,12 @@ import (
 	"github.com/nahue/setlist_manager/internal/store"
 )
 
-templ BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string) {
+templ BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string, user *types.User) {
 	@BaseLayout(PageData{
-		Title:       band.Name + " - Band Details",
-		Description: "View band information and manage songs",
-		Content:     BandDetailsContent(band, members, songs, userRole),
+		Title: band.Name,
+		Description: "Manage your band's setlist and members",
+		Content: BandDetailsContent(band, members, songs, userRole),
+		User: user,
 	})
 }
 

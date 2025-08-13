@@ -1,10 +1,9 @@
 package app
 
 import (
+	"context"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,57 +14,42 @@ import (
 	"github.com/nahue/setlist_manager/internal/store"
 )
 
-// Application holds all the services and dependencies
+// Application represents the main application
 type Application struct {
-	db            *database.Database
 	router        *chi.Mux
-	useAuth       bool
+	authService   *services.AuthService
 	authHandler   *api.AuthHandler
 	bandsHandler  *api.BandHandler
 	songsHandler  *api.SongHandler
 	healthHandler *api.HealthHandler
-	authService   *services.AuthService
 }
 
-// NewApplication creates a new application instance with all dependencies
-func NewApplication(db *database.Database) *Application {
-	// Check if authentication is enabled via environment variable
-	useAuth := true // default to true for security
-	if useAuthStr := os.Getenv("USE_AUTH"); useAuthStr != "" {
-		if parsed, err := strconv.ParseBool(useAuthStr); err == nil {
-			useAuth = parsed
-		} else {
-			log.Printf("Warning: Invalid USE_AUTH value '%s', defaulting to true", useAuthStr)
-		}
-	}
+// NewApplication creates a new application instance
+func NewApplication(
+	db *database.Database,
+	authStore *store.SQLiteAuthStore,
+	bandsStore *store.SQLiteBandsStore,
+	songsStore *store.SQLiteSongsStore,
+) *Application {
+	// Initialize services
+	authService := services.NewAuthService(authStore)
 
-	if !useAuth {
-		log.Println("Warning: Authentication is DISABLED. This should only be used for development.")
-	}
-
-	// Create feature-specific database instances
-	authDatabase := store.NewSQLiteAuthStore(db.GetDB())
-	bandsDatabase := store.NewSQLiteBandsStore(db.GetDB())
-	songsDatabase := store.NewSQLiteSongsStore(db.GetDB())
-
-	// Create shared services
-	authService := services.NewAuthService(authDatabase)
-
-	// Create handlers
-	authHandler := api.NewAuthHandler(authDatabase, bandsDatabase)
-	bandsHandler := api.NewBandHandler(bandsDatabase, songsDatabase, authService)
-	songsHandler := api.NewSongHandler(songsDatabase, bandsDatabase, authService)
+	// Initialize handlers
+	authHandler := api.NewAuthHandler(authStore, bandsStore)
+	bandsHandler := api.NewBandHandler(bandsStore, songsStore, authService)
+	songsHandler := api.NewSongHandler(songsStore, bandsStore, authService)
 	healthHandler := api.NewHealthHandler(db)
 
+	// Initialize router
+	router := chi.NewRouter()
+
 	app := &Application{
-		db:            db,
-		router:        chi.NewRouter(),
-		useAuth:       useAuth,
+		router:        router,
+		authService:   authService,
 		authHandler:   authHandler,
 		bandsHandler:  bandsHandler,
 		songsHandler:  songsHandler,
 		healthHandler: healthHandler,
-		authService:   authService,
 	}
 
 	app.setupMiddleware()
@@ -143,11 +127,6 @@ func (app *Application) serveWelcome(w http.ResponseWriter, r *http.Request) {
 // authMiddleware checks if the user is authenticated
 func (app *Application) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !app.useAuth {
-			next.ServeHTTP(w, r)
-			return
-		}
-
 		// Get current user from session
 		user := app.authService.GetCurrentUser(r)
 		if user == nil {
@@ -155,7 +134,9 @@ func (app *Application) authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Store user in request context
+		ctx := context.WithValue(r.Context(), api.UserContextKey{}, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

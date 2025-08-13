@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -43,15 +44,28 @@ type AcceptInvitationRequest struct {
 	InvitationID string `json:"invitation_id"`
 }
 
+// UserContextKey is the key used to store user in request context
+type UserContextKey struct{}
+
+// GetUserFromContext retrieves the user from the request context
+func GetUserFromContext(ctx context.Context) *types.User {
+	if user, ok := ctx.Value(UserContextKey{}).(*types.User); ok {
+		return user
+	}
+	return nil
+}
+
 // ServeBands handles GET /bands
 func (h *BandHandler) ServeBands(w http.ResponseWriter, r *http.Request) {
-	component := templates.BandsPage()
+	user := GetUserFromContext(r.Context())
+	component := templates.BandsPage(user)
 	component.Render(r.Context(), w)
 }
 
 // ServeCreateBand handles GET /bands/create
 func (h *BandHandler) ServeCreateBand(w http.ResponseWriter, r *http.Request) {
-	component := templates.CreateBandPage()
+	user := GetUserFromContext(r.Context())
+	component := templates.CreateBandPage(user)
 	component.Render(r.Context(), w)
 }
 
@@ -63,8 +77,8 @@ func (h *BandHandler) ServeBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -121,14 +135,14 @@ func (h *BandHandler) ServeBand(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render band details page
-	component := templates.BandDetailsPage(band, members, songs, userRole)
+	component := templates.BandDetailsPage(band, members, songs, userRole, user)
 	component.Render(r.Context(), w)
 }
 
 // GetBands handles GET /api/bands
 func (h *BandHandler) GetBands(w http.ResponseWriter, r *http.Request) {
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -152,8 +166,8 @@ func (h *BandHandler) GetBands(w http.ResponseWriter, r *http.Request) {
 
 // CreateBand handles POST /api/bands
 func (h *BandHandler) CreateBand(w http.ResponseWriter, r *http.Request) {
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -194,8 +208,8 @@ func (h *BandHandler) GetBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -252,8 +266,8 @@ func (h *BandHandler) InviteMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		// Return HTML error response
 		w.Header().Set("Content-Type", "text/html")
@@ -451,8 +465,8 @@ func (h *BandHandler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get current user from session
-	currentUser := h.getCurrentUser(r)
+	// Get current user from context
+	currentUser := GetUserFromContext(r.Context())
 	if currentUser == nil {
 		// Return HTML error response
 		w.Header().Set("Content-Type", "text/html")
@@ -578,8 +592,8 @@ func (h *BandHandler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 
 // GetInvitations handles GET /api/invitations
 func (h *BandHandler) GetInvitations(w http.ResponseWriter, r *http.Request) {
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -603,8 +617,8 @@ func (h *BandHandler) GetInvitations(w http.ResponseWriter, r *http.Request) {
 
 // AcceptInvitation handles POST /api/invitations/accept
 func (h *BandHandler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
-	// Get current user from session
-	user := h.getCurrentUser(r)
+	// Get current user from context
+	user := GetUserFromContext(r.Context())
 	if user == nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
