@@ -123,7 +123,7 @@ func BandDetailsContent(band *types.Band, members []*types.BandMember, songs []*
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div></div><!-- Add Song Modal --><div x-show=\"showAddSongModal\" x-transition:enter=\"transition ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"transition ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50\"><div class=\"relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white\"><div class=\"mt-3\"><h3 class=\"text-lg font-medium text-gray-900 mb-4\">Agregar Nueva Canción</h3><form x-target=\"songs-section\" method=\"POST\" :action=\"`/api/bands/songs?id=${bandId}`\" @ajax:success=\"handleSongSuccess\" @ajax:error=\"handleSongError\"><div class=\"space-y-4\"><div><label class=\"block text-sm font-medium text-gray-700\">Título *</label> <input type=\"text\" x-model=\"newSong.title\" name=\"title\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"></div><div><label class=\"block text-sm font-medium text-gray-700\">Artista</label> <input type=\"text\" x-model=\"newSong.artist\" name=\"artist\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"></div><div class=\"grid grid-cols-2 gap-4\"><div><label class=\"block text-sm font-medium text-gray-700\">Tonalidad</label> <input type=\"text\" x-model=\"newSong.key\" name=\"key\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"></div><div><label class=\"block text-sm font-medium text-gray-700\">Tempo (BPM)</label> <input type=\"number\" x-model=\"newSong.tempo\" name=\"tempo\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"></div></div><div><label class=\"block text-sm font-medium text-gray-700\">Notas</label> <textarea x-model=\"newSong.notes\" name=\"notes\" rows=\"3\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\"></textarea></div></div><div class=\"mt-6 flex justify-end space-x-3\"><button type=\"button\" @click=\"showAddSongModal = false\" class=\"px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50\">Cancelar</button> <button type=\"submit\" class=\"px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700\">Agregar Canción</button></div></form></div></div></div></div><script>\n\t\tfunction deleteSong(songId) {\n\t\t\tif (!confirm('¿Estás seguro de que quieres eliminar esta canción?')) {\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tfetch(`/api/bands/songs/${songId}`, {\n\t\t\t\tmethod: 'DELETE'\n\t\t\t})\n\t\t\t.then(response => response.text())\n\t\t\t.then(html => {\n\t\t\t\t// Replace the songs section with the new HTML\n\t\t\t\tdocument.getElementById('songs-section').innerHTML = html;\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tconsole.error('Error deleting song:', error);\n\t\t\t\talert('Error al eliminar la canción');\n\t\t\t});\n\t\t}\n\n\t\tfunction editSong(songId) {\n\t\t\t// TODO: Implement edit functionality\n\t\t\talert('¡Funcionalidad de edición próximamente!');\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div></div><!-- Add Song Modal --><div x-show=\"showAddSongModal\" x-transition:enter=\"transition ease-out duration-300\" x-transition:enter-start=\"opacity-0\" x-transition:enter-end=\"opacity-100\" x-transition:leave=\"transition ease-in duration-200\" x-transition:leave-start=\"opacity-100\" x-transition:leave-end=\"opacity-0\" class=\"fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50\"><div class=\"relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white\"><div class=\"mt-3\"><h3 class=\"text-lg font-medium text-gray-900 mb-6\">Agregar Nueva Canción</h3><form x-target=\"songs-section\" method=\"POST\" :action=\"`/api/bands/songs?id=${bandId}`\" @ajax:success=\"handleSongSuccess\" @ajax:error=\"handleSongError\"><div class=\"space-y-8\"><div class=\"grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6\"><div class=\"col-span-full\"><label class=\"block text-sm/6 font-medium text-gray-900\">Título *</label><div class=\"mt-2\"><input type=\"text\" x-model=\"newSong.title\" name=\"title\" required class=\"block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6\" placeholder=\"Nombre de la canción\"></div></div><div class=\"col-span-full\"><label class=\"block text-sm/6 font-medium text-gray-900\">Artista</label><div class=\"mt-2\"><input type=\"text\" x-model=\"newSong.artist\" name=\"artist\" class=\"block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6\" placeholder=\"Nombre del artista o banda\"></div></div><div class=\"sm:col-span-3\"><label class=\"block text-sm/6 font-medium text-gray-900\">Tonalidad</label><div class=\"mt-2\"><input type=\"text\" x-model=\"newSong.key\" name=\"key\" class=\"block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6\" placeholder=\"ej: C, Am, F#m\"></div></div><div class=\"sm:col-span-3\"><label class=\"block text-sm/6 font-medium text-gray-900\">Tempo (BPM)</label><div class=\"mt-2\"><input type=\"number\" x-model=\"newSong.tempo\" name=\"tempo\" class=\"block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6\" placeholder=\"120\" min=\"1\" max=\"300\"></div></div><div class=\"col-span-full\"><label class=\"block text-sm/6 font-medium text-gray-900\">Notas</label><div class=\"mt-2\"><textarea x-model=\"newSong.notes\" name=\"notes\" rows=\"3\" class=\"block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6\" placeholder=\"Notas adicionales sobre la canción...\"></textarea></div><p class=\"mt-3 text-sm/6 text-gray-600\">Información adicional sobre la canción, acordes, letra, etc.</p></div></div></div><div class=\"mt-6 flex items-center justify-end gap-x-6\"><button type=\"button\" @click=\"showAddSongModal = false\" class=\"text-sm/6 font-semibold text-gray-900\">Cancelar</button> <button type=\"submit\" class=\"rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600\">Agregar Canción</button></div></form></div></div></div></div><script>\n\t\tfunction deleteSong(songId) {\n\t\t\tif (!confirm('¿Estás seguro de que quieres eliminar esta canción?')) {\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tfetch(`/api/bands/songs/${songId}`, {\n\t\t\t\tmethod: 'DELETE'\n\t\t\t})\n\t\t\t.then(response => response.text())\n\t\t\t.then(html => {\n\t\t\t\t// Replace the songs section with the new HTML\n\t\t\t\tdocument.getElementById('songs-section').innerHTML = html;\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tconsole.error('Error deleting song:', error);\n\t\t\t\talert('Error al eliminar la canción');\n\t\t\t});\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -174,7 +174,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 215, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 231, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -187,7 +187,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 216, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 232, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -200,7 +200,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var9 templ.SafeURL
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs("/song?id=" + song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 226, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 242, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(song.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 227, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 243, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(song.Artist)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 230, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 246, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -239,7 +239,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(song.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 232, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 248, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -252,7 +252,7 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(song.User.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 233, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 249, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -265,36 +265,49 @@ func SongsSection(songs []*store.Song) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(song.Notes)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 235, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 251, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</p></div><div class=\"flex space-x-2\"><button @click=\"editSong('{ song.ID }')\" class=\"text-indigo-600 hover:text-indigo-500 text-sm font-medium\">Editar</button><form method=\"delete\" action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</p></div><div class=\"flex space-x-2\"><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 templ.SafeURL
-				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs("/song/edit?id=" + song.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 241, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 254, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" x-target=\"songs-section\" @ajax:before=\"confirm('¿Estás seguro de que quieres eliminar esta canción?') || $event.preventDefault()\"><button type=\"submit\" class=\"text-red-600 hover:text-red-500 text-sm font-medium\">Eliminar</button></form></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" class=\"text-indigo-600 hover:text-indigo-500 text-sm font-medium\">Editar</a><form method=\"delete\" action=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 templ.SafeURL
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 257, Col: 70}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" x-target=\"songs-section\" @ajax:before=\"confirm('¿Estás seguro de que quieres eliminar esta canción?') || $event.preventDefault()\"><button type=\"submit\" class=\"text-red-600 hover:text-red-500 text-sm font-medium\">Eliminar</button></form></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -318,84 +331,84 @@ func MembersSection(members []*types.BandMember, bandID string) templ.Component 
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var16 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var16 == nil {
-			templ_7745c5c3_Var16 = templ.NopComponent
+		templ_7745c5c3_Var17 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var17 == nil {
+			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div id=\"members-section\" class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Miembros</h2><p class=\"text-sm text-gray-500\">Miembros de la banda y sus roles</p></div><div class=\"p-6\"><div class=\"space-y-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div id=\"members-section\" class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Miembros</h2><p class=\"text-sm text-gray-500\">Miembros de la banda y sus roles</p></div><div class=\"p-6\"><div class=\"space-y-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, member := range members {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"flex items-center justify-between\"><div class=\"flex items-center\"><div class=\"h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center\"><svg class=\"h-4 w-4 text-indigo-600\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg></div><div class=\"ml-3\"><p class=\"text-sm font-medium text-gray-900\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(member.User.Email)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 274, Col: 72}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</p><p class=\"text-xs text-gray-500 capitalize\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"flex items-center justify-between\"><div class=\"flex items-center\"><div class=\"h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center\"><svg class=\"h-4 w-4 text-indigo-600\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg></div><div class=\"ml-3\"><p class=\"text-sm font-medium text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
-			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(member.Role)
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(member.User.Email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 275, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 290, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p><p class=\"text-xs text-gray-500 capitalize\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(member.Role)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 291, Col: 65}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if member.Role != "owner" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"flex items-center space-x-2\"><form method=\"DELETE\" action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"flex items-center space-x-2\"><form method=\"DELETE\" action=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var19 templ.SafeURL
-				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/members/remove?id=" + bandID + "&user_id=" + member.UserID)
+				var templ_7745c5c3_Var20 templ.SafeURL
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/members/remove?id=" + bandID + "&user_id=" + member.UserID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 282, Col: 88}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 298, Col: 88}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" x-target=\"members-section\" @ajax:before=\"confirm('¿Estás seguro de que quieres remover a este miembro?') || $event.preventDefault()\"><button type=\"submit\" class=\"text-red-600 hover:text-red-500 text-sm font-medium\">Remover</button></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" x-target=\"members-section\" @ajax:before=\"confirm('¿Estás seguro de que quieres remover a este miembro?') || $event.preventDefault()\"><button type=\"submit\" class=\"text-red-600 hover:text-red-500 text-sm font-medium\">Remover</button></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><!-- Add Member Form --><div class=\"mt-6 pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Agregar Nuevo Miembro</h3><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><!-- Add Member Form --><div class=\"mt-6 pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Agregar Nuevo Miembro</h3><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var20 templ.SafeURL
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
+		var templ_7745c5c3_Var21 templ.SafeURL
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 303, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 319, Col: 46}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" x-target=\"members-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Email *</label> <input type=\"email\" name=\"email\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter email address\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Name (optional)</label> <input type=\"text\" name=\"name\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter display name\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Role</label> <select name=\"role\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\"><option value=\"member\">Member</option> <option value=\"admin\">Admin</option></select></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Member</button></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" x-target=\"members-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Email *</label> <input type=\"email\" name=\"email\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter email address\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Name (optional)</label> <input type=\"text\" name=\"name\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter display name\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Role</label> <select name=\"role\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\"><option value=\"member\">Member</option> <option value=\"admin\">Admin</option></select></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Member</button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -419,38 +432,38 @@ func SongsSectionError(errorMsg string, bandID string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div id=\"songs-section\"><div class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Songs</h2><p class=\"text-sm text-gray-500\">Manage your band's song repertoire</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div id=\"songs-section\"><div class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Songs</h2><p class=\"text-sm text-gray-500\">Manage your band's song repertoire</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
+		var templ_7745c5c3_Var23 string
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 362, Col: 43}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span></div></div><!-- Add Song Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Song</h3><form method=\"POST\" action=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var23 templ.SafeURL
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs?id=" + bandID)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 371, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 378, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" x-target=\"songs-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Title *</label> <input type=\"text\" name=\"title\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter song title\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Artist</label> <input type=\"text\" name=\"artist\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter artist name\"></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Key</label> <input type=\"text\" name=\"key\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"e.g., C, G, Am\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Tempo (BPM)</label> <input type=\"number\" name=\"tempo\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"e.g., 120\"></div></div><div><label class=\"block text-xs font-medium text-gray-700\">Notes</label> <textarea name=\"notes\" rows=\"3\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Add any notes about the song...\"></textarea></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Song</button></form></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span></div></div><!-- Add Song Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Song</h3><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var24 templ.SafeURL
+		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs?id=" + bandID)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 387, Col: 46}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" x-target=\"songs-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Title *</label> <input type=\"text\" name=\"title\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter song title\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Artist</label> <input type=\"text\" name=\"artist\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter artist name\"></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Key</label> <input type=\"text\" name=\"key\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"e.g., C, G, Am\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Tempo (BPM)</label> <input type=\"number\" name=\"tempo\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"e.g., 120\"></div></div><div><label class=\"block text-xs font-medium text-gray-700\">Notes</label> <textarea name=\"notes\" rows=\"3\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Add any notes about the song...\"></textarea></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Song</button></form></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -474,38 +487,38 @@ func MembersSectionError(errorMsg string, bandID string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var24 == nil {
-			templ_7745c5c3_Var24 = templ.NopComponent
+		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var25 == nil {
+			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div id=\"members-section\" class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Members</h2><p class=\"text-sm text-gray-500\">Band members and their roles</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"members-section\" class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Members</h2><p class=\"text-sm text-gray-500\">Band members and their roles</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var25 string
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
+		var templ_7745c5c3_Var26 string
+		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 449, Col: 42}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></div></div><!-- Add Member Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Member</h3><form method=\"POST\" action=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var26 templ.SafeURL
-		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 458, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 465, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" x-target=\"members-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Email *</label> <input type=\"email\" name=\"email\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter email address\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Name (optional)</label> <input type=\"text\" name=\"name\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter display name\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Role</label> <select name=\"role\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\"><option value=\"member\">Member</option> <option value=\"admin\">Admin</option></select></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Member</button></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></div></div><!-- Add Member Form --><div class=\"pt-6 border-t border-gray-200\"><h3 class=\"text-sm font-medium text-gray-900 mb-3\">Add New Member</h3><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var27 templ.SafeURL
+		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/invite?id=" + bandID)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/band_details.templ`, Line: 474, Col: 46}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" x-target=\"members-section\" class=\"space-y-3\"><div><label class=\"block text-xs font-medium text-gray-700\">Email *</label> <input type=\"email\" name=\"email\" required class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter email address\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Name (optional)</label> <input type=\"text\" name=\"name\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\" placeholder=\"Enter display name\"></div><div><label class=\"block text-xs font-medium text-gray-700\">Role</label> <select name=\"role\" class=\"mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs\"><option value=\"member\">Member</option> <option value=\"admin\">Admin</option></select></div><button type=\"submit\" class=\"w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Add Member</button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

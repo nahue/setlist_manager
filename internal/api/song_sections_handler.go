@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -19,10 +20,11 @@ type SongSectionsHandler struct {
 	authService     *services.AuthService
 	authStore       *store.SQLiteAuthStore
 	markdownService *services.MarkdownService
+	aiService       *services.AIService
 }
 
 // NewSongSectionsHandler creates a new song sections handler
-func NewSongSectionsHandler(sectionsDB *store.SQLiteSongSectionsStore, songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService) *SongSectionsHandler {
+func NewSongSectionsHandler(sectionsDB *store.SQLiteSongSectionsStore, songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService, aiService *services.AIService) *SongSectionsHandler {
 	return &SongSectionsHandler{
 		sectionsDB:      sectionsDB,
 		songsDB:         songsDB,
@@ -30,6 +32,7 @@ func NewSongSectionsHandler(sectionsDB *store.SQLiteSongSectionsStore, songsDB *
 		authService:     authService,
 		authStore:       authStore,
 		markdownService: markdownService,
+		aiService:       aiService,
 	}
 }
 
@@ -367,4 +370,116 @@ func (h *SongSectionsHandler) DeleteSongSection(w http.ResponseWriter, r *http.R
 		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
 		return
 	}
+}
+
+// GenerateAISongSections handles POST /api/songs/{songID}/sections/generate-ai
+func (h *SongSectionsHandler) GenerateAISongSections(w http.ResponseWriter, r *http.Request) {
+	// Extract song ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 6 {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+	songID := pathParts[3]
+
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get song to check band membership
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Generate prompt on the backend using song information
+	prompt := h.generateAIPrompt(song.Title, song.Artist)
+
+	// Generate sections using AI service
+	aiReq := &services.AIGenerationRequest{
+		SongTitle: song.Title,
+		Artist:    song.Artist,
+		Prompt:    prompt,
+	}
+
+	aiResponse, err := h.aiService.GenerateSongSections(aiReq)
+	if err != nil {
+		log.Printf("Error generating AI sections: %v", err)
+		http.Error(w, "Failed to generate AI sections", http.StatusInternalServerError)
+		return
+	}
+
+	// Clear existing sections (optional - you might want to keep them)
+	// For now, we'll just add the new ones
+
+	// Create the AI-generated sections
+	for _, section := range aiResponse.Sections {
+		_, err := h.sectionsDB.CreateSongSection(songID, section.Title, section.Key, section.Body, user.ID)
+		if err != nil {
+			log.Printf("Error creating AI-generated section: %v", err)
+			// Continue with other sections even if one fails
+		}
+	}
+
+	// Get updated sections
+	sections, err := h.sectionsDB.GetSongSectionsBySongID(songID)
+	if err != nil {
+		log.Printf("Error getting updated sections: %v", err)
+		http.Error(w, "Failed to get updated sections", http.StatusInternalServerError)
+		return
+	}
+
+	// Return HTML response with the updated sections
+	w.Header().Set("Content-Type", "text/html")
+	err = templates.SongSections(sections, songID).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering song sections: %v", err)
+		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
+		return
+	}
+}
+
+// generateAIPrompt creates a prompt for AI song section generation
+func (h *SongSectionsHandler) generateAIPrompt(songTitle, artist string) string {
+	return fmt.Sprintf(`Generate song sections for "%s" by %s. Please provide the response in the following JSON format:
+
+{
+  "song_title": "%s",
+  "artist": "%s",
+  "sections": [
+    {
+      "title": "Intro",
+      "key": "C",
+      "body": "**Intro (4 bars)**\\n\\nC - Am - F - G\\n\\n*Simple chord progression to establish the key*"
+    },
+    {
+      "title": "Verse 1",
+      "key": "C",
+      "body": "**Verse 1**\\n\\nC           Am          F           G\\nThis is the first verse of our song\\n\\nC           Am          F           G\\nWith chords written above the lyrics\\n\\n*Play with a gentle strumming pattern*"
+    }
+  ]
+}
+
+Please generate realistic song sections with proper chord progressions, lyrics, and musical instructions. Use Markdown formatting in the body content.`, songTitle, artist, songTitle, artist)
 }

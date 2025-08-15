@@ -115,39 +115,60 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 		</div>
 		<!-- Add Song Modal -->
 		<div x-show="showAddSongModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-			<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+			<div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
 				<div class="mt-3">
-					<h3 class="text-lg font-medium text-gray-900 mb-4">Agregar Nueva Canción</h3>
+					<h3 class="text-lg font-medium text-gray-900 mb-6">Agregar Nueva Canción</h3>
 					<form x-target="songs-section" method="POST" :action="`/api/bands/songs?id=${bandId}`" @ajax:success="handleSongSuccess" @ajax:error="handleSongError">
-						<div class="space-y-4">
-							<div>
-								<label class="block text-sm font-medium text-gray-700">Título *</label>
-								<input type="text" x-model="newSong.title" name="title" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
-							</div>
-							<div>
-								<label class="block text-sm font-medium text-gray-700">Artista</label>
-								<input type="text" x-model="newSong.artist" name="artist" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
-							</div>
-							<div class="grid grid-cols-2 gap-4">
-								<div>
-									<label class="block text-sm font-medium text-gray-700">Tonalidad</label>
-									<input type="text" x-model="newSong.key" name="key" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+						<div class="space-y-8">
+							<div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+								<div class="col-span-full">
+									<label class="block text-sm/6 font-medium text-gray-900">Título *</label>
+									<div class="mt-2">
+										<input type="text" x-model="newSong.title" name="title" required 
+											class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+											placeholder="Nombre de la canción"/>
+									</div>
 								</div>
-								<div>
-									<label class="block text-sm font-medium text-gray-700">Tempo (BPM)</label>
-									<input type="number" x-model="newSong.tempo" name="tempo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
+								<div class="col-span-full">
+									<label class="block text-sm/6 font-medium text-gray-900">Artista</label>
+									<div class="mt-2">
+										<input type="text" x-model="newSong.artist" name="artist" 
+											class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+											placeholder="Nombre del artista o banda"/>
+									</div>
 								</div>
-							</div>
-							<div>
-								<label class="block text-sm font-medium text-gray-700">Notas</label>
-								<textarea x-model="newSong.notes" name="notes" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+								<div class="sm:col-span-3">
+									<label class="block text-sm/6 font-medium text-gray-900">Tonalidad</label>
+									<div class="mt-2">
+										<input type="text" x-model="newSong.key" name="key" 
+											class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+											placeholder="ej: C, Am, F#m"/>
+									</div>
+								</div>
+								<div class="sm:col-span-3">
+									<label class="block text-sm/6 font-medium text-gray-900">Tempo (BPM)</label>
+									<div class="mt-2">
+										<input type="number" x-model="newSong.tempo" name="tempo" 
+											class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+											placeholder="120" min="1" max="300"/>
+									</div>
+								</div>
+								<div class="col-span-full">
+									<label class="block text-sm/6 font-medium text-gray-900">Notas</label>
+									<div class="mt-2">
+										<textarea x-model="newSong.notes" name="notes" rows="3" 
+											class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+											placeholder="Notas adicionales sobre la canción..."></textarea>
+									</div>
+									<p class="mt-3 text-sm/6 text-gray-600">Información adicional sobre la canción, acordes, letra, etc.</p>
+								</div>
 							</div>
 						</div>
-						<div class="mt-6 flex justify-end space-x-3">
-							<button type="button" @click="showAddSongModal = false" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-								Cancelar
-							</button>
-							<button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+						<div class="mt-6 flex items-center justify-end gap-x-6">
+							<button type="button" @click="showAddSongModal = false" 
+								class="text-sm/6 font-semibold text-gray-900">Cancelar</button>
+							<button type="submit" 
+								class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
 								Agregar Canción
 							</button>
 						</div>
@@ -174,11 +195,6 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 				console.error('Error deleting song:', error);
 				alert('Error al eliminar la canción');
 			});
-		}
-
-		function editSong(songId) {
-			// TODO: Implement edit functionality
-			alert('¡Funcionalidad de edición próximamente!');
 		}
 	</script>
 }
@@ -235,9 +251,9 @@ templ SongsSection(songs []*store.Song) {
 										<p class="mt-2 text-sm text-gray-600">{ song.Notes }</p>
 									</div>
 									<div class="flex space-x-2">
-										<button @click="editSong('{ song.ID }')" class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
+										<a href={ "/song/edit?id=" + song.ID } class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
 											Editar
-										</button>
+										</a>
 										<form method="delete" action={ "/api/bands/songs/" + song.ID } x-target="songs-section" @ajax:before="confirm('¿Estás seguro de que quieres eliminar esta canción?') || $event.preventDefault()">
 											<button type="submit" class="text-red-600 hover:text-red-500 text-sm font-medium">
 												Eliminar

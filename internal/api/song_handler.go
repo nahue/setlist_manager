@@ -425,3 +425,160 @@ func (h *SongHandler) DeleteSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// EditSong handles PUT /api/bands/songs/{songID}
+func (h *SongHandler) EditSong(w http.ResponseWriter, r *http.Request) {
+	// Extract song ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+	songID := pathParts[len(pathParts)-1]
+
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get song to check band membership
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	// Extract form fields
+	title := r.FormValue("title")
+	artist := r.FormValue("artist")
+	key := r.FormValue("key")
+	tempoStr := r.FormValue("tempo")
+	notes := r.FormValue("notes")
+
+	if title == "" {
+		http.Error(w, "Song title is required", http.StatusBadRequest)
+		return
+	}
+
+	// Parse tempo if provided
+	var tempo *int
+	if tempoStr != "" {
+		if tempoVal, err := strconv.Atoi(tempoStr); err == nil {
+			tempo = &tempoVal
+		}
+	}
+
+	// Update song
+	err = h.songsDB.UpdateSong(songID, title, artist, key, notes, tempo)
+	if err != nil {
+		log.Printf("Error updating song: %v", err)
+		// Return HTML error response
+		w.Header().Set("Content-Type", "text/html")
+		err = templates.SongDetailsError("Failed to update song", songID).Render(r.Context(), w)
+		if err != nil {
+			log.Printf("Error rendering error template: %v", err)
+			http.Error(w, "Failed to render error template", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// Redirect to song details page
+	http.Redirect(w, r, "/song?id="+songID, http.StatusSeeOther)
+}
+
+// ServeEditSong handles GET /song/edit
+func (h *SongHandler) ServeEditSong(w http.ResponseWriter, r *http.Request) {
+	songID := r.URL.Query().Get("id")
+	if songID == "" {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get song details
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Get band details
+	band, err := h.bandsDB.GetBandByID(song.BandID)
+	if err != nil {
+		log.Printf("Error getting band: %v", err)
+		http.Error(w, "Failed to get band", http.StatusInternalServerError)
+		return
+	}
+	if band == nil {
+		http.Error(w, "Band not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Convert store.Band to types.Band
+	bandType := &types.Band{
+		ID:          band.ID,
+		Name:        band.Name,
+		Description: band.Description,
+		CreatedBy:   band.CreatedBy,
+		CreatedAt:   band.CreatedAt,
+		UpdatedAt:   band.UpdatedAt,
+		IsActive:    band.IsActive,
+	}
+
+	// Render the edit song page
+	w.Header().Set("Content-Type", "text/html")
+	err = templates.EditSongPage(song, bandType, user).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering edit song page: %v", err)
+		http.Error(w, "Failed to render edit song page", http.StatusInternalServerError)
+		return
+	}
+}
