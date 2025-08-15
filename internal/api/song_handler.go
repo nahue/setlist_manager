@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/nahue/setlist_manager/internal/app/shared/types"
 	"github.com/nahue/setlist_manager/internal/services"
 	"github.com/nahue/setlist_manager/internal/store"
 	"github.com/nahue/setlist_manager/templates"
@@ -16,15 +17,19 @@ import (
 type SongHandler struct {
 	songsDB     *store.SQLiteSongsStore
 	bandsDB     *store.SQLiteBandsStore
+	sectionsDB  *store.SQLiteSongSectionsStore
 	authService *services.AuthService
+	authStore   *store.SQLiteAuthStore
 }
 
 // NewHandler creates a new songs handler
-func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, authService *services.AuthService) *SongHandler {
+func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, sectionsDB *store.SQLiteSongSectionsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore) *SongHandler {
 	return &SongHandler{
 		songsDB:     songsDB,
 		bandsDB:     bandsDB,
+		sectionsDB:  sectionsDB,
 		authService: authService,
+		authStore:   authStore,
 	}
 }
 
@@ -250,6 +255,94 @@ func (h *SongHandler) ReorderSongs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error rendering songs section: %v", err)
 		http.Error(w, "Failed to render songs section", http.StatusInternalServerError)
+		return
+	}
+}
+
+// ServeSongDetails handles GET /song
+func (h *SongHandler) ServeSongDetails(w http.ResponseWriter, r *http.Request) {
+	songID := r.URL.Query().Get("id")
+	if songID == "" {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get song details
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Get band details
+	band, err := h.bandsDB.GetBandByID(song.BandID)
+	if err != nil {
+		log.Printf("Error getting band: %v", err)
+		http.Error(w, "Failed to get band", http.StatusInternalServerError)
+		return
+	}
+	if band == nil {
+		http.Error(w, "Band not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Get user info for the song creator
+	if song.User == nil {
+		userInfo, err := h.authStore.GetUserByID(song.CreatedBy)
+		if err == nil && userInfo != nil {
+			song.User = userInfo
+		}
+	}
+
+	// Convert store.Band to types.Band
+	bandType := &types.Band{
+		ID:          band.ID,
+		Name:        band.Name,
+		Description: band.Description,
+		CreatedBy:   band.CreatedBy,
+		CreatedAt:   band.CreatedAt,
+		UpdatedAt:   band.UpdatedAt,
+		IsActive:    band.IsActive,
+	}
+
+	// Get song sections
+	sections, err := h.sectionsDB.GetSongSectionsBySongID(songID)
+	if err != nil {
+		log.Printf("Error getting song sections: %v", err)
+		// Continue without sections if there's an error
+		sections = []*store.SongSection{}
+	}
+
+	// Render the song details page
+	w.Header().Set("Content-Type", "text/html")
+	err = templates.SongDetailsPage(song, bandType, sections, user).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering song details page: %v", err)
+		http.Error(w, "Failed to render song details page", http.StatusInternalServerError)
 		return
 	}
 }

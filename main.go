@@ -26,9 +26,10 @@ func main() {
 	authStore := store.NewSQLiteAuthStore(db.GetDB())
 	bandsStore := store.NewSQLiteBandsStore(db.GetDB())
 	songsStore := store.NewSQLiteSongsStore(db.GetDB())
+	sectionsStore := store.NewSQLiteSongSectionsStore(db.GetDB())
 
 	// Create application with all dependencies - always use authentication
-	application := app.NewApplication(db, authStore, bandsStore, songsStore)
+	application := app.NewApplication(db, authStore, bandsStore, songsStore, sectionsStore)
 
 	// Start server
 	log.Fatal(application.Start("9090"))

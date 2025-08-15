@@ -8,7 +8,7 @@ import (
 templ BandDetailsPage(band *types.Band, members []*types.BandMember, songs []*store.Song, userRole string, user *types.User) {
 	@BaseLayout(PageData{
 		Title: band.Name,
-		Description: "Manage your band's setlist and members",
+		Description: "Gestiona el setlist y miembros de tu banda",
 		Content: BandDetailsContent(band, members, songs, userRole),
 		User: user,
 	})
@@ -90,14 +90,14 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 					<div>
 						<h1 class="text-3xl font-bold text-gray-900">{ band.Name }</h1>
 						<p class="mt-2 text-gray-600">{ band.Description }</p>
-						<p class="mt-1 text-sm text-gray-500">Created { band.CreatedAt.Format("January 2, 2006") }</p>
+						<p class="mt-1 text-sm text-gray-500">Creada { band.CreatedAt.Format("January 2, 2006") }</p>
 					</div>
 					<div class="flex space-x-3">
 						<button @click="showAddSongModal = true" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
 							<svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
 							</svg>
-							Add Song
+							Agregar Canción
 						</button>
 					</div>
 				</div>
@@ -117,20 +117,20 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 		<div x-show="showAddSongModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
 			<div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
 				<div class="mt-3">
-					<h3 class="text-lg font-medium text-gray-900 mb-4">Add New Song</h3>
+					<h3 class="text-lg font-medium text-gray-900 mb-4">Agregar Nueva Canción</h3>
 					<form x-target="songs-section" method="POST" :action="`/api/bands/songs?id=${bandId}`" @ajax:success="handleSongSuccess" @ajax:error="handleSongError">
 						<div class="space-y-4">
 							<div>
-								<label class="block text-sm font-medium text-gray-700">Title *</label>
+								<label class="block text-sm font-medium text-gray-700">Título *</label>
 								<input type="text" x-model="newSong.title" name="title" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
 							</div>
 							<div>
-								<label class="block text-sm font-medium text-gray-700">Artist</label>
+								<label class="block text-sm font-medium text-gray-700">Artista</label>
 								<input type="text" x-model="newSong.artist" name="artist" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
 							</div>
 							<div class="grid grid-cols-2 gap-4">
 								<div>
-									<label class="block text-sm font-medium text-gray-700">Key</label>
+									<label class="block text-sm font-medium text-gray-700">Tonalidad</label>
 									<input type="text" x-model="newSong.key" name="key" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"/>
 								</div>
 								<div>
@@ -139,16 +139,16 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 								</div>
 							</div>
 							<div>
-								<label class="block text-sm font-medium text-gray-700">Notes</label>
+								<label class="block text-sm font-medium text-gray-700">Notas</label>
 								<textarea x-model="newSong.notes" name="notes" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
 							</div>
 						</div>
 						<div class="mt-6 flex justify-end space-x-3">
 							<button type="button" @click="showAddSongModal = false" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-								Cancel
+								Cancelar
 							</button>
 							<button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
-								Add Song
+								Agregar Canción
 							</button>
 						</div>
 					</form>
@@ -158,7 +158,7 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 	</div>
 	<script>
 		function deleteSong(songId) {
-			if (!confirm('Are you sure you want to delete this song?')) {
+			if (!confirm('¿Estás seguro de que quieres eliminar esta canción?')) {
 				return;
 			}
 
@@ -172,13 +172,13 @@ templ BandDetailsContent(band *types.Band, members []*types.BandMember, songs []
 			})
 			.catch(error => {
 				console.error('Error deleting song:', error);
-				alert('Error deleting song');
+				alert('Error al eliminar la canción');
 			});
 		}
 
 		function editSong(songId) {
 			// TODO: Implement edit functionality
-			alert('Edit functionality coming soon!');
+			alert('¡Funcionalidad de edición próximamente!');
 		}
 	</script>
 }
@@ -187,8 +187,8 @@ templ SongsSection(songs []*store.Song) {
 	<div id="songs-section">
 		<div class="bg-white shadow rounded-lg">
 			<div class="px-6 py-4 border-b border-gray-200">
-				<h2 class="text-lg font-medium text-gray-900">Songs</h2>
-				<p class="text-sm text-gray-500">Manage your band's song repertoire</p>
+				<h2 class="text-lg font-medium text-gray-900">Canciones</h2>
+				<p class="text-sm text-gray-500">Gestiona el repertorio de canciones de tu banda</p>
 			</div>
 			<div class="p-6">
 				if len(songs) == 0 {
@@ -196,8 +196,8 @@ templ SongsSection(songs []*store.Song) {
 						<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
 						</svg>
-						<p class="mt-2 text-sm text-gray-500">No songs yet</p>
-						<p class="text-xs text-gray-400">Add your first song to get started</p>
+						<p class="mt-2 text-sm text-gray-500">Aún no hay canciones</p>
+						<p class="text-xs text-gray-400">Agrega tu primera canción para comenzar</p>
 					</div>
 				} else {
 					<div
@@ -223,22 +223,24 @@ templ SongsSection(songs []*store.Song) {
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
 												</svg>
 											</span>
-											<h3 class="text-lg font-medium text-gray-900">{ song.Title }</h3>
+											<a href={ "/song?id=" + song.ID } class="text-lg font-medium text-gray-900 hover:text-indigo-600 transition-colors">
+												{ song.Title }
+											</a>
 										</div>
 										<p class="text-sm text-gray-600">{ song.Artist }</p>
 										<div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-											<span>Key: { song.Key }</span>
-											<span>Added by { song.User.Email }</span>
+											<span>Tonalidad: { song.Key }</span>
+											<span>Agregado por { song.User.Email }</span>
 										</div>
 										<p class="mt-2 text-sm text-gray-600">{ song.Notes }</p>
 									</div>
 									<div class="flex space-x-2">
 										<button @click="editSong('{ song.ID }')" class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
-											Edit
+											Editar
 										</button>
-										<form method="delete" action={ "/api/bands/songs/" + song.ID } x-target="songs-section" @ajax:before="confirm('Are you sure you want to delete this song?') || $event.preventDefault()">
+										<form method="delete" action={ "/api/bands/songs/" + song.ID } x-target="songs-section" @ajax:before="confirm('¿Estás seguro de que quieres eliminar esta canción?') || $event.preventDefault()">
 											<button type="submit" class="text-red-600 hover:text-red-500 text-sm font-medium">
-												Delete
+												Eliminar
 											</button>
 										</form>
 									</div>
@@ -255,8 +257,8 @@ templ SongsSection(songs []*store.Song) {
 templ MembersSection(members []*types.BandMember, bandID string) {
 	<div id="members-section" class="bg-white shadow rounded-lg">
 		<div class="px-6 py-4 border-b border-gray-200">
-			<h2 class="text-lg font-medium text-gray-900">Members</h2>
-			<p class="text-sm text-gray-500">Band members and their roles</p>
+			<h2 class="text-lg font-medium text-gray-900">Miembros</h2>
+			<p class="text-sm text-gray-500">Miembros de la banda y sus roles</p>
 		</div>
 		<div class="p-6">
 			<div class="space-y-3">
@@ -279,13 +281,13 @@ templ MembersSection(members []*types.BandMember, bandID string) {
 									method="DELETE"
 									action={ "/api/bands/members/remove?id=" + bandID + "&user_id=" + member.UserID }
 									x-target="members-section"
-									@ajax:before="confirm('Are you sure you want to remove this member?') || $event.preventDefault()"
+									@ajax:before="confirm('¿Estás seguro de que quieres remover a este miembro?') || $event.preventDefault()"
 								>
 									<button
 										type="submit"
 										class="text-red-600 hover:text-red-500 text-sm font-medium"
 									>
-										Remove
+										Remover
 									</button>
 								</form>
 							</div>
@@ -295,7 +297,7 @@ templ MembersSection(members []*types.BandMember, bandID string) {
 			</div>
 			<!-- Add Member Form -->
 			<div class="mt-6 pt-6 border-t border-gray-200">
-				<h3 class="text-sm font-medium text-gray-900 mb-3">Add New Member</h3>
+				<h3 class="text-sm font-medium text-gray-900 mb-3">Agregar Nuevo Miembro</h3>
 				<form
 					method="POST"
 					action={ "/api/bands/invite?id=" + bandID }
