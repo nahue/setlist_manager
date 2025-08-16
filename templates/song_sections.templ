@@ -179,8 +179,8 @@ templ SongSections(sections []*store.SongSection, songID string) {
 											}
 										</div>
 										if section.Body != "" {
-											<div class="mt-2 text-sm text-gray-600 prose prose-sm max-w-none markdown-content" data-content={ section.Body }>
-												<!-- Markdown content will be rendered by JavaScript -->
+											<div class="mt-2 text-sm text-gray-600 prose prose-sm max-w-none">
+												@templ.Raw(section.Body)
 											</div>
 										}
 										<div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
@@ -298,8 +298,7 @@ templ SongSections(sections []*store.SongSection, songID string) {
 			// Initialize markdown preview
 			initializeMarkdownPreview();
 			
-					// Initialize markdown content in section cards
-		initializeMarkdownContent();
+			
 	});
 
 
@@ -309,15 +308,9 @@ templ SongSections(sections []*store.SongSection, songID string) {
 		setTimeout(() => {
 			console.log('Reinitializing components after AI generation...');
 			
-			// First initialize tabs and markdown preview
+			// Initialize tabs and markdown preview for any new content
 			initializeTabs();
 			initializeMarkdownPreview();
-			
-			// Then initialize markdown content with a small delay to ensure DOM is ready
-			setTimeout(() => {
-				initializeMarkdownContent();
-				console.log('Markdown content initialized');
-			}, 50);
 			
 			console.log('Components reinitialized');
 		}, 100);
@@ -393,48 +386,7 @@ templ SongSections(sections []*store.SongSection, songID string) {
 			});
 		}
 
-		function initializeMarkdownContent() {
-			document.querySelectorAll('.markdown-content').forEach(element => {
-				const markdownText = element.getAttribute('data-content');
-				if (markdownText && markdownText.trim() !== '') {
-					try {
-						// Configure marked options
-						marked.setOptions({
-							breaks: true,
-							gfm: true,
-							headerIds: false,
-							mangle: false,
-							sanitize: false
-						});
-						
-						// Parse markdown to HTML
-						const html = marked.parse(markdownText);
-						
-						// Apply custom styling classes
-						let styledHtml = html
-							// Add Tailwind classes to headers
-							.replace(/<h1>/g, '<h1 class="text-lg font-bold mt-2 mb-1">')
-							.replace(/<h2>/g, '<h2 class="text-base font-semibold mt-2 mb-1">')
-							.replace(/<h3>/g, '<h3 class="text-sm font-semibold mt-1 mb-1">')
-							// Add Tailwind classes to links
-							.replace(/<a /g, '<a class="text-indigo-600 hover:text-indigo-800 underline" target="_blank" ')
-							// Add Tailwind classes to lists
-							.replace(/<ul>/g, '<ul class="list-disc ml-4 mb-1">')
-							.replace(/<ol>/g, '<ol class="list-decimal ml-4 mb-1">')
-							// Add Tailwind classes to code blocks
-							.replace(/<code>/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">')
-							.replace(/<pre>/g, '<pre class="bg-gray-100 p-2 rounded text-xs font-mono overflow-x-auto">')
-							// Add Tailwind classes to blockquotes
-							.replace(/<blockquote>/g, '<blockquote class="border-l-2 border-gray-300 pl-2 italic text-xs">');
-						
-						element.innerHTML = styledHtml;
-					} catch (error) {
-						console.error('Error parsing markdown in section card:', error);
-						// Keep original content if parsing fails
-					}
-				}
-			});
-		}
+
 
 		function updateMarkdownPreview(tabContainer) {
 			const textarea = tabContainer.querySelector('.markdown-editor');

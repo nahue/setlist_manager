@@ -142,20 +142,15 @@ func SongSections(sections []*store.SongSection, songID string) templ.Component 
 					return templ_7745c5c3_Err
 				}
 				if section.Body != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"mt-2 text-sm text-gray-600 prose prose-sm max-w-none markdown-content\" data-content=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"mt-2 text-sm text-gray-600 prose prose-sm max-w-none\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(section.Body)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 182, Col: 121}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+					templ_7745c5c3_Err = templ.Raw(section.Body).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"><!-- Markdown content will be rendered by JavaScript --></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -164,12 +159,12 @@ func SongSections(sections []*store.SongSection, songID string) templ.Component 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", section.Position))
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", section.Position))
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 187, Col: 64}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -182,12 +177,12 @@ func SongSections(sections []*store.SongSection, songID string) templ.Component 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(section.User.Email)
+					var templ_7745c5c3_Var9 string
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(section.User.Email)
 					if templ_7745c5c3_Err != nil {
 						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 189, Col: 47}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -200,12 +195,12 @@ func SongSections(sections []*store.SongSection, songID string) templ.Component 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var11 templ.SafeURL
-				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + songID + "/sections/" + section.ID)
+				var templ_7745c5c3_Var10 templ.SafeURL
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + songID + "/sections/" + section.ID)
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 197, Col: 91}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -218,12 +213,12 @@ func SongSections(sections []*store.SongSection, songID string) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var12 templ.SafeURL
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + songID + "/sections")
+			var templ_7745c5c3_Var11 templ.SafeURL
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + songID + "/sections")
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 213, Col: 52}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -232,7 +227,7 @@ func SongSections(sections []*store.SongSection, songID string) templ.Component 
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div></div><script>\n\t\t// Tab functionality\n\t\tdocument.addEventListener('DOMContentLoaded', function() {\n\t\t\t// Initialize tabs\n\t\t\tinitializeTabs();\n\t\t\t\n\t\t\t// Initialize markdown preview\n\t\t\tinitializeMarkdownPreview();\n\t\t\t\n\t\t\t\t\t// Initialize markdown content in section cards\n\t\tinitializeMarkdownContent();\n\t});\n\n\n\n\tfunction handleAISuccess(event) {\n\t\t// Wait a bit for the DOM to update, then reinitialize the components\n\t\tsetTimeout(() => {\n\t\t\tconsole.log('Reinitializing components after AI generation...');\n\t\t\t\n\t\t\t// First initialize tabs and markdown preview\n\t\t\tinitializeTabs();\n\t\t\tinitializeMarkdownPreview();\n\t\t\t\n\t\t\t// Then initialize markdown content with a small delay to ensure DOM is ready\n\t\t\tsetTimeout(() => {\n\t\t\t\tinitializeMarkdownContent();\n\t\t\t\tconsole.log('Markdown content initialized');\n\t\t\t}, 50);\n\t\t\t\n\t\t\tconsole.log('Components reinitialized');\n\t\t}, 100);\n\t\t\n\t\t// Show success notification\n\t\tshowNotification('Song sections generated successfully!', 'success');\n\t}\n\n\tfunction handleAIError(event) {\n\t\tconsole.error('Error generating sections:', event.detail);\n\t\tshowNotification('Failed to generate sections. Please try again.', 'error');\n\t}\n\n\tfunction showNotification(message, type) {\n\t\t// Create notification element\n\t\tconst notification = document.createElement('div');\n\t\tnotification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${\n\t\t\ttype === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'\n\t\t}`;\n\t\tnotification.textContent = message;\n\t\t\n\t\t// Add to page\n\t\tdocument.body.appendChild(notification);\n\t\t\n\t\t// Remove after 3 seconds\n\t\tsetTimeout(() => {\n\t\t\tnotification.remove();\n\t\t}, 3000);\n\t}\n\n\t\tfunction initializeTabs() {\n\t\t\tdocument.querySelectorAll('.tab-button').forEach(button => {\n\t\t\t\tbutton.addEventListener('click', function() {\n\t\t\t\t\tconst tabName = this.getAttribute('data-tab');\n\t\t\t\t\tconst tabContainer = this.closest('.mt-1');\n\t\t\t\t\t\n\t\t\t\t\t// Update button states\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-button').forEach(btn => {\n\t\t\t\t\t\tbtn.classList.remove('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\tbtn.classList.add('border-transparent', 'text-gray-500');\n\t\t\t\t\t});\n\t\t\t\t\tthis.classList.remove('border-transparent', 'text-gray-500');\n\t\t\t\t\tthis.classList.add('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\n\t\t\t\t\t// Update tab content visibility\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-content').forEach(content => {\n\t\t\t\t\t\tif (content.getAttribute('data-tab') === tabName) {\n\t\t\t\t\t\t\tcontent.classList.remove('hidden');\n\t\t\t\t\t\t\tcontent.classList.add('active');\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tcontent.classList.add('hidden');\n\t\t\t\t\t\t\tcontent.classList.remove('active');\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t\t\n\t\t\t\t\t// Update preview if switching to preview tab\n\t\t\t\t\tif (tabName === 'preview') {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction initializeMarkdownPreview() {\n\t\t\tdocument.querySelectorAll('.markdown-editor').forEach(textarea => {\n\t\t\t\ttextarea.addEventListener('input', function() {\n\t\t\t\t\tconst tabContainer = this.closest('.mt-1');\n\t\t\t\t\tconst previewTab = tabContainer.querySelector('[data-tab=\"preview\"]');\n\t\t\t\t\tif (previewTab && !previewTab.classList.contains('hidden')) {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction initializeMarkdownContent() {\n\t\t\tdocument.querySelectorAll('.markdown-content').forEach(element => {\n\t\t\t\tconst markdownText = element.getAttribute('data-content');\n\t\t\t\tif (markdownText && markdownText.trim() !== '') {\n\t\t\t\t\ttry {\n\t\t\t\t\t\t// Configure marked options\n\t\t\t\t\t\tmarked.setOptions({\n\t\t\t\t\t\t\tbreaks: true,\n\t\t\t\t\t\t\tgfm: true,\n\t\t\t\t\t\t\theaderIds: false,\n\t\t\t\t\t\t\tmangle: false,\n\t\t\t\t\t\t\tsanitize: false\n\t\t\t\t\t\t});\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Parse markdown to HTML\n\t\t\t\t\t\tconst html = marked.parse(markdownText);\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Apply custom styling classes\n\t\t\t\t\t\tlet styledHtml = html\n\t\t\t\t\t\t\t// Add Tailwind classes to headers\n\t\t\t\t\t\t\t.replace(/<h1>/g, '<h1 class=\"text-lg font-bold mt-2 mb-1\">')\n\t\t\t\t\t\t\t.replace(/<h2>/g, '<h2 class=\"text-base font-semibold mt-2 mb-1\">')\n\t\t\t\t\t\t\t.replace(/<h3>/g, '<h3 class=\"text-sm font-semibold mt-1 mb-1\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to links\n\t\t\t\t\t\t\t.replace(/<a /g, '<a class=\"text-indigo-600 hover:text-indigo-800 underline\" target=\"_blank\" ')\n\t\t\t\t\t\t\t// Add Tailwind classes to lists\n\t\t\t\t\t\t\t.replace(/<ul>/g, '<ul class=\"list-disc ml-4 mb-1\">')\n\t\t\t\t\t\t\t.replace(/<ol>/g, '<ol class=\"list-decimal ml-4 mb-1\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to code blocks\n\t\t\t\t\t\t\t.replace(/<code>/g, '<code class=\"bg-gray-100 px-1 py-0.5 rounded text-xs font-mono\">')\n\t\t\t\t\t\t\t.replace(/<pre>/g, '<pre class=\"bg-gray-100 p-2 rounded text-xs font-mono overflow-x-auto\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to blockquotes\n\t\t\t\t\t\t\t.replace(/<blockquote>/g, '<blockquote class=\"border-l-2 border-gray-300 pl-2 italic text-xs\">');\n\t\t\t\t\t\t\n\t\t\t\t\t\telement.innerHTML = styledHtml;\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Error parsing markdown in section card:', error);\n\t\t\t\t\t\t// Keep original content if parsing fails\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\n\t\tfunction updateMarkdownPreview(tabContainer) {\n\t\t\tconst textarea = tabContainer.querySelector('.markdown-editor');\n\t\t\tconst preview = tabContainer.querySelector('.markdown-preview');\n\t\t\t\n\t\t\tif (textarea && preview) {\n\t\t\t\tconst markdownText = textarea.value;\n\t\t\t\tif (markdownText.trim() === '') {\n\t\t\t\t\tpreview.innerHTML = '<div class=\"text-gray-500 italic\">Preview will appear here...</div>';\n\t\t\t\t} else {\n\t\t\t\t\t// Use marked library for proper markdown parsing\n\t\t\t\t\ttry {\n\t\t\t\t\t\t// Configure marked options\n\t\t\t\t\t\tmarked.setOptions({\n\t\t\t\t\t\t\tbreaks: true, // Convert line breaks to <br>\n\t\t\t\t\t\t\tgfm: true,    // GitHub Flavored Markdown\n\t\t\t\t\t\t\theaderIds: false, // Disable header IDs for security\n\t\t\t\t\t\t\tmangle: false,    // Disable mangling\n\t\t\t\t\t\t\tsanitize: false   // We'll handle sanitization with DOMPurify if needed\n\t\t\t\t\t\t});\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Parse markdown to HTML\n\t\t\t\t\t\tconst html = marked.parse(markdownText);\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Apply custom styling classes\n\t\t\t\t\t\tlet styledHtml = html\n\t\t\t\t\t\t\t// Add Tailwind classes to headers\n\t\t\t\t\t\t\t.replace(/<h1>/g, '<h1 class=\"text-2xl font-bold mt-4 mb-3\">')\n\t\t\t\t\t\t\t.replace(/<h2>/g, '<h2 class=\"text-xl font-semibold mt-3 mb-2\">')\n\t\t\t\t\t\t\t.replace(/<h3>/g, '<h3 class=\"text-lg font-semibold mt-2 mb-1\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to links\n\t\t\t\t\t\t\t.replace(/<a /g, '<a class=\"text-indigo-600 hover:text-indigo-800 underline\" target=\"_blank\" ')\n\t\t\t\t\t\t\t// Add Tailwind classes to lists\n\t\t\t\t\t\t\t.replace(/<ul>/g, '<ul class=\"list-disc ml-4 mb-2\">')\n\t\t\t\t\t\t\t.replace(/<ol>/g, '<ol class=\"list-decimal ml-4 mb-2\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to code blocks\n\t\t\t\t\t\t\t.replace(/<code>/g, '<code class=\"bg-gray-100 px-1 py-0.5 rounded text-sm font-mono\">')\n\t\t\t\t\t\t\t.replace(/<pre>/g, '<pre class=\"bg-gray-100 p-3 rounded text-sm font-mono overflow-x-auto\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to blockquotes\n\t\t\t\t\t\t\t.replace(/<blockquote>/g, '<blockquote class=\"border-l-4 border-gray-300 pl-4 italic\">');\n\t\t\t\t\t\t\n\t\t\t\t\t\tpreview.innerHTML = styledHtml;\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Error parsing markdown:', error);\n\t\t\t\t\t\tpreview.innerHTML = '<div class=\"text-red-500\">Error parsing markdown</div>';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tfunction handleSort(item, position) {\n\t\t\t// Get all section elements and their IDs in current order\n\t\t\tconst sectionElements = document.querySelectorAll('[data-section-id]');\n\t\t\tconst sectionOrder = Array.from(sectionElements).map(el => el.getAttribute('data-section-id'));\n\t\t\t\n\t\t\t// Send to server\n\t\t\tfetch(`/api/songs/${ songID }/sections/reorder`, {\n\t\t\t\tmethod: 'POST',\n\t\t\t\theaders: {\n\t\t\t\t\t'Content-Type': 'application/json',\n\t\t\t\t},\n\t\t\t\tbody: JSON.stringify({ section_order: sectionOrder })\n\t\t\t})\n\t\t\t.then(response => response.text())\n\t\t\t.then(html => {\n\t\t\t\tdocument.getElementById('song-sections').innerHTML = html;\n\t\t\t\t// Reinitialize tabs, markdown preview, and markdown content after content update\n\t\t\t\tsetTimeout(() => {\n\t\t\t\t\tinitializeTabs();\n\t\t\t\t\tinitializeMarkdownPreview();\n\t\t\t\t\tinitializeMarkdownContent();\n\t\t\t\t}, 100);\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tconsole.error('Error reordering sections:', error);\n\t\t\t\talert('Error reordering sections');\n\t\t\t});\n\t\t}\n\n\t\tfunction editSection(sectionId) {\n\t\t\t// TODO: Implement edit functionality\n\t\t\talert('Edit functionality coming soon!');\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div></div><script>\n\t\t// Tab functionality\n\t\tdocument.addEventListener('DOMContentLoaded', function() {\n\t\t\t// Initialize tabs\n\t\t\tinitializeTabs();\n\t\t\t\n\t\t\t// Initialize markdown preview\n\t\t\tinitializeMarkdownPreview();\n\t\t\t\n\t\t\t\n\t});\n\n\n\n\tfunction handleAISuccess(event) {\n\t\t// Wait a bit for the DOM to update, then reinitialize the components\n\t\tsetTimeout(() => {\n\t\t\tconsole.log('Reinitializing components after AI generation...');\n\t\t\t\n\t\t\t// Initialize tabs and markdown preview for any new content\n\t\t\tinitializeTabs();\n\t\t\tinitializeMarkdownPreview();\n\t\t\t\n\t\t\tconsole.log('Components reinitialized');\n\t\t}, 100);\n\t\t\n\t\t// Show success notification\n\t\tshowNotification('Song sections generated successfully!', 'success');\n\t}\n\n\tfunction handleAIError(event) {\n\t\tconsole.error('Error generating sections:', event.detail);\n\t\tshowNotification('Failed to generate sections. Please try again.', 'error');\n\t}\n\n\tfunction showNotification(message, type) {\n\t\t// Create notification element\n\t\tconst notification = document.createElement('div');\n\t\tnotification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${\n\t\t\ttype === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'\n\t\t}`;\n\t\tnotification.textContent = message;\n\t\t\n\t\t// Add to page\n\t\tdocument.body.appendChild(notification);\n\t\t\n\t\t// Remove after 3 seconds\n\t\tsetTimeout(() => {\n\t\t\tnotification.remove();\n\t\t}, 3000);\n\t}\n\n\t\tfunction initializeTabs() {\n\t\t\tdocument.querySelectorAll('.tab-button').forEach(button => {\n\t\t\t\tbutton.addEventListener('click', function() {\n\t\t\t\t\tconst tabName = this.getAttribute('data-tab');\n\t\t\t\t\tconst tabContainer = this.closest('.mt-1');\n\t\t\t\t\t\n\t\t\t\t\t// Update button states\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-button').forEach(btn => {\n\t\t\t\t\t\tbtn.classList.remove('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\tbtn.classList.add('border-transparent', 'text-gray-500');\n\t\t\t\t\t});\n\t\t\t\t\tthis.classList.remove('border-transparent', 'text-gray-500');\n\t\t\t\t\tthis.classList.add('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\n\t\t\t\t\t// Update tab content visibility\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-content').forEach(content => {\n\t\t\t\t\t\tif (content.getAttribute('data-tab') === tabName) {\n\t\t\t\t\t\t\tcontent.classList.remove('hidden');\n\t\t\t\t\t\t\tcontent.classList.add('active');\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tcontent.classList.add('hidden');\n\t\t\t\t\t\t\tcontent.classList.remove('active');\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t\t\n\t\t\t\t\t// Update preview if switching to preview tab\n\t\t\t\t\tif (tabName === 'preview') {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction initializeMarkdownPreview() {\n\t\t\tdocument.querySelectorAll('.markdown-editor').forEach(textarea => {\n\t\t\t\ttextarea.addEventListener('input', function() {\n\t\t\t\t\tconst tabContainer = this.closest('.mt-1');\n\t\t\t\t\tconst previewTab = tabContainer.querySelector('[data-tab=\"preview\"]');\n\t\t\t\t\tif (previewTab && !previewTab.classList.contains('hidden')) {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\n\n\t\tfunction updateMarkdownPreview(tabContainer) {\n\t\t\tconst textarea = tabContainer.querySelector('.markdown-editor');\n\t\t\tconst preview = tabContainer.querySelector('.markdown-preview');\n\t\t\t\n\t\t\tif (textarea && preview) {\n\t\t\t\tconst markdownText = textarea.value;\n\t\t\t\tif (markdownText.trim() === '') {\n\t\t\t\t\tpreview.innerHTML = '<div class=\"text-gray-500 italic\">Preview will appear here...</div>';\n\t\t\t\t} else {\n\t\t\t\t\t// Use marked library for proper markdown parsing\n\t\t\t\t\ttry {\n\t\t\t\t\t\t// Configure marked options\n\t\t\t\t\t\tmarked.setOptions({\n\t\t\t\t\t\t\tbreaks: true, // Convert line breaks to <br>\n\t\t\t\t\t\t\tgfm: true,    // GitHub Flavored Markdown\n\t\t\t\t\t\t\theaderIds: false, // Disable header IDs for security\n\t\t\t\t\t\t\tmangle: false,    // Disable mangling\n\t\t\t\t\t\t\tsanitize: false   // We'll handle sanitization with DOMPurify if needed\n\t\t\t\t\t\t});\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Parse markdown to HTML\n\t\t\t\t\t\tconst html = marked.parse(markdownText);\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Apply custom styling classes\n\t\t\t\t\t\tlet styledHtml = html\n\t\t\t\t\t\t\t// Add Tailwind classes to headers\n\t\t\t\t\t\t\t.replace(/<h1>/g, '<h1 class=\"text-2xl font-bold mt-4 mb-3\">')\n\t\t\t\t\t\t\t.replace(/<h2>/g, '<h2 class=\"text-xl font-semibold mt-3 mb-2\">')\n\t\t\t\t\t\t\t.replace(/<h3>/g, '<h3 class=\"text-lg font-semibold mt-2 mb-1\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to links\n\t\t\t\t\t\t\t.replace(/<a /g, '<a class=\"text-indigo-600 hover:text-indigo-800 underline\" target=\"_blank\" ')\n\t\t\t\t\t\t\t// Add Tailwind classes to lists\n\t\t\t\t\t\t\t.replace(/<ul>/g, '<ul class=\"list-disc ml-4 mb-2\">')\n\t\t\t\t\t\t\t.replace(/<ol>/g, '<ol class=\"list-decimal ml-4 mb-2\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to code blocks\n\t\t\t\t\t\t\t.replace(/<code>/g, '<code class=\"bg-gray-100 px-1 py-0.5 rounded text-sm font-mono\">')\n\t\t\t\t\t\t\t.replace(/<pre>/g, '<pre class=\"bg-gray-100 p-3 rounded text-sm font-mono overflow-x-auto\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to blockquotes\n\t\t\t\t\t\t\t.replace(/<blockquote>/g, '<blockquote class=\"border-l-4 border-gray-300 pl-4 italic\">');\n\t\t\t\t\t\t\n\t\t\t\t\t\tpreview.innerHTML = styledHtml;\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Error parsing markdown:', error);\n\t\t\t\t\t\tpreview.innerHTML = '<div class=\"text-red-500\">Error parsing markdown</div>';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\t\tfunction handleSort(item, position) {\n\t\t\t// Get all section elements and their IDs in current order\n\t\t\tconst sectionElements = document.querySelectorAll('[data-section-id]');\n\t\t\tconst sectionOrder = Array.from(sectionElements).map(el => el.getAttribute('data-section-id'));\n\t\t\t\n\t\t\t// Send to server\n\t\t\tfetch(`/api/songs/${ songID }/sections/reorder`, {\n\t\t\t\tmethod: 'POST',\n\t\t\t\theaders: {\n\t\t\t\t\t'Content-Type': 'application/json',\n\t\t\t\t},\n\t\t\t\tbody: JSON.stringify({ section_order: sectionOrder })\n\t\t\t})\n\t\t\t.then(response => response.text())\n\t\t\t.then(html => {\n\t\t\t\tdocument.getElementById('song-sections').innerHTML = html;\n\t\t\t\t// Reinitialize tabs, markdown preview, and markdown content after content update\n\t\t\t\tsetTimeout(() => {\n\t\t\t\t\tinitializeTabs();\n\t\t\t\t\tinitializeMarkdownPreview();\n\t\t\t\t\tinitializeMarkdownContent();\n\t\t\t\t}, 100);\n\t\t\t})\n\t\t\t.catch(error => {\n\t\t\t\tconsole.error('Error reordering sections:', error);\n\t\t\t\talert('Error reordering sections');\n\t\t\t});\n\t\t}\n\n\t\tfunction editSection(sectionId) {\n\t\t\t// TODO: Implement edit functionality\n\t\t\talert('Edit functionality coming soon!');\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -256,21 +251,21 @@ func SongSectionsError(errorMsg string, songID string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var13 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var13 == nil {
-			templ_7745c5c3_Var13 = templ.NopComponent
+		templ_7745c5c3_Var12 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var12 == nil {
+			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div id=\"song-sections\" class=\"mt-8\"><div class=\"bg-white shadow rounded-lg\"><div class=\"px-6 py-4 border-b border-gray-200\"><h2 class=\"text-lg font-medium text-gray-900\">Song Sections</h2><p class=\"text-sm text-gray-500\">Organize your song into sections with lyrics, chords, or notes</p></div><div class=\"p-6\"><!-- Error Message --><div class=\"bg-red-50 border border-red-200 rounded-lg p-4 mb-6\"><div class=\"flex items-center\"><svg class=\"w-5 h-5 text-red-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 20 20\"><path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z\" clip-rule=\"evenodd\"></path></svg> <span class=\"text-red-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 538, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 490, Col: 43}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -278,12 +273,12 @@ func SongSectionsError(errorMsg string, songID string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var15 templ.SafeURL
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + songID + "/sections")
+		var templ_7745c5c3_Var14 templ.SafeURL
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + songID + "/sections")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 547, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_sections.templ`, Line: 499, Col: 51}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

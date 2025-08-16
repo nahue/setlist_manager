@@ -15,21 +15,23 @@ import (
 
 // Handler handles song-related requests
 type SongHandler struct {
-	songsDB     *store.SQLiteSongsStore
-	bandsDB     *store.SQLiteBandsStore
-	sectionsDB  *store.SQLiteSongSectionsStore
-	authService *services.AuthService
-	authStore   *store.SQLiteAuthStore
+	songsDB         *store.SQLiteSongsStore
+	bandsDB         *store.SQLiteBandsStore
+	sectionsDB      *store.SQLiteSongSectionsStore
+	authService     *services.AuthService
+	authStore       *store.SQLiteAuthStore
+	markdownService *services.MarkdownService
 }
 
 // NewHandler creates a new songs handler
-func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, sectionsDB *store.SQLiteSongSectionsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore) *SongHandler {
+func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, sectionsDB *store.SQLiteSongSectionsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService) *SongHandler {
 	return &SongHandler{
-		songsDB:     songsDB,
-		bandsDB:     bandsDB,
-		sectionsDB:  sectionsDB,
-		authService: authService,
-		authStore:   authStore,
+		songsDB:         songsDB,
+		bandsDB:         bandsDB,
+		sectionsDB:      sectionsDB,
+		authService:     authService,
+		authStore:       authStore,
+		markdownService: markdownService,
 	}
 }
 
@@ -337,9 +339,12 @@ func (h *SongHandler) ServeSongDetails(w http.ResponseWriter, r *http.Request) {
 		sections = []*store.SongSection{}
 	}
 
+	// Process sections to convert markdown to HTML
+	processedSections := h.processSectionsForRendering(sections)
+
 	// Render the song details page
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongDetailsPage(song, bandType, sections, user).Render(r.Context(), w)
+	err = templates.SongDetailsPage(song, bandType, processedSections, user).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song details page: %v", err)
 		http.Error(w, "Failed to render song details page", http.StatusInternalServerError)
@@ -581,4 +586,25 @@ func (h *SongHandler) ServeEditSong(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to render edit song page", http.StatusInternalServerError)
 		return
 	}
+}
+
+// processSectionsForRendering converts markdown content to HTML for all sections
+func (h *SongHandler) processSectionsForRendering(sections []*store.SongSection) []*store.SongSection {
+	processedSections := make([]*store.SongSection, len(sections))
+
+	for i, section := range sections {
+		// Create a copy of the section
+		processedSection := *section
+
+		// Convert markdown body to HTML
+		if section.Body != "" {
+			htmlContent := h.markdownService.ParseMarkdown(section.Body)
+			// Convert template.HTML to string for storage in the struct
+			processedSection.Body = string(htmlContent)
+		}
+
+		processedSections[i] = &processedSection
+	}
+
+	return processedSections
 }

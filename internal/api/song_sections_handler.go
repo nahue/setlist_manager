@@ -102,9 +102,12 @@ func (h *SongSectionsHandler) GetSongSections(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Return HTML response with the sections
+	// Process sections to convert markdown to HTML
+	processedSections := h.processSectionsForRendering(sections)
+
+	// Return HTML response with the processed sections
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongSections(sections, songID).Render(r.Context(), w)
+	err = templates.SongSections(processedSections, songID).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song sections: %v", err)
 		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
@@ -197,9 +200,12 @@ func (h *SongSectionsHandler) CreateSongSection(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// Process sections to convert markdown to HTML
+	processedSections := h.processSectionsForRendering(sections)
+
 	// Return HTML response with the updated sections
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongSections(sections, songID).Render(r.Context(), w)
+	err = templates.SongSections(processedSections, songID).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song sections: %v", err)
 		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
@@ -282,9 +288,12 @@ func (h *SongSectionsHandler) ReorderSongSections(w http.ResponseWriter, r *http
 		return
 	}
 
+	// Process sections to convert markdown to HTML
+	processedSections := h.processSectionsForRendering(sections)
+
 	// Return HTML response with the updated sections
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongSections(sections, songID).Render(r.Context(), w)
+	err = templates.SongSections(processedSections, songID).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song sections: %v", err)
 		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
@@ -362,9 +371,12 @@ func (h *SongSectionsHandler) DeleteSongSection(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// Process sections to convert markdown to HTML
+	processedSections := h.processSectionsForRendering(sections)
+
 	// Return HTML response with the updated sections
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongSections(sections, songID).Render(r.Context(), w)
+	err = templates.SongSections(processedSections, songID).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song sections: %v", err)
 		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
@@ -450,9 +462,12 @@ func (h *SongSectionsHandler) GenerateAISongSections(w http.ResponseWriter, r *h
 		return
 	}
 
+	// Process sections to convert markdown to HTML
+	processedSections := h.processSectionsForRendering(sections)
+
 	// Return HTML response with the updated sections
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongSections(sections, songID).Render(r.Context(), w)
+	err = templates.SongSections(processedSections, songID).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song sections: %v", err)
 		http.Error(w, "Failed to render song sections", http.StatusInternalServerError)
@@ -482,4 +497,25 @@ func (h *SongSectionsHandler) generateAIPrompt(songTitle, artist string) string 
 }
 
 Please generate realistic song sections with proper chord progressions, lyrics, and musical instructions. Use Markdown formatting in the body content.`, songTitle, artist, songTitle, artist)
+}
+
+// processSectionsForRendering converts markdown content to HTML for all sections
+func (h *SongSectionsHandler) processSectionsForRendering(sections []*store.SongSection) []*store.SongSection {
+	processedSections := make([]*store.SongSection, len(sections))
+
+	for i, section := range sections {
+		// Create a copy of the section
+		processedSection := *section
+
+		// Convert markdown body to HTML
+		if section.Body != "" {
+			htmlContent := h.markdownService.ParseMarkdown(section.Body)
+			// Convert template.HTML to string for storage in the struct
+			processedSection.Body = string(htmlContent)
+		}
+
+		processedSections[i] = &processedSection
+	}
+
+	return processedSections
 }

@@ -41,7 +41,7 @@ func NewApplication(
 	// Initialize handlers
 	authHandler := api.NewAuthHandler(authStore, bandsStore)
 	bandsHandler := api.NewBandHandler(bandsStore, songsStore, authService)
-	songsHandler := api.NewSongHandler(songsStore, bandsStore, sectionsStore, authService, authStore)
+	songsHandler := api.NewSongHandler(songsStore, bandsStore, sectionsStore, authService, authStore, markdownService)
 	sectionsHandler := api.NewSongSectionsHandler(sectionsStore, songsStore, bandsStore, authService, authStore, markdownService, aiService)
 	healthHandler := api.NewHealthHandler(db)
 
