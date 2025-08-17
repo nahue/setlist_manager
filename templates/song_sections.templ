@@ -6,8 +6,52 @@ import (
 )
 
 templ SongSections(sections []*store.SongSection, songID string) {
-	<div id="song-sections" class="mt-8">
-		<div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+	<div id="song-sections" class="mt-8" data-song-id={ songID } x-data="{ 
+		handleSort(item, position) {
+			// Get all section elements and their IDs in current order
+			const sectionElements = document.querySelectorAll('[data-section-id]');
+			const sectionOrder = Array.from(sectionElements).map(el => el.getAttribute('data-section-id'));
+			
+			// Get song ID from data attribute
+			const songId = this.$el.getAttribute('data-song-id');
+			
+			// Send to server
+			fetch(`/api/songs/${songId}/sections/reorder`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ section_order: sectionOrder })
+			})
+			.then(response => response.text())
+			.then(html => {
+				document.getElementById('song-sections').innerHTML = html;
+				// Reinitialize tabs, markdown preview, and markdown content after content update
+				setTimeout(() => {
+					initializeTabs();
+					initializeMarkdownPreview();
+					initializeMarkdownContent();
+				}, 100);
+			})
+			.catch(error => {
+				console.error('Error reordering sections:', error);
+				alert('Error reordering sections');
+			});
+		},
+		onSortStart() {
+			// Ensure dark mode classes are applied to sortable elements
+			setTimeout(() => {
+				const isDarkMode = document.documentElement.classList.contains('dark');
+				if (isDarkMode) {
+					document.querySelectorAll('.sortable-ghost, .sortable-chosen').forEach(el => {
+						el.classList.add('dark');
+					});
+				}
+			}, 10);
+		}
+	}"
+	>
+		<div class="bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none">
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<h2 class="text-lg font-medium text-gray-900 dark:text-white">Song Sections</h2>
 				<p class="text-sm text-gray-500 dark:text-gray-400">Organize your song into sections with lyrics, chords, or notes</p>
@@ -154,12 +198,13 @@ templ SongSections(sections []*store.SongSection, songID string) {
 						x-sort:config="{ 
 							animation: 150,
 							ghostClass: 'sortable-ghost',
-							chosenClass: 'sortable-chosen'
+							chosenClass: 'sortable-chosen',
+							onStart: onSortStart
 						}"
 					>
 						for _, section := range sections {
 							<div
-								class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors [body:not(.sorting)_&]:hover:bg-gray-50 dark:[body:not(.sorting)_&]:hover:bg-gray-700"
+								class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [body:not(.sorting)_&]:hover:bg-gray-50 dark:[body:not(.sorting)_&]:hover:bg-gray-700/50"
 								data-section-id={ section.ID }
 								x-sort:item={ section.ID }
 							>
@@ -437,34 +482,7 @@ templ SongSections(sections []*store.SongSection, songID string) {
 			}
 		}
 
-		function handleSort(item, position) {
-			// Get all section elements and their IDs in current order
-			const sectionElements = document.querySelectorAll('[data-section-id]');
-			const sectionOrder = Array.from(sectionElements).map(el => el.getAttribute('data-section-id'));
-			
-			// Send to server
-			fetch(`/api/songs/${ songID }/sections/reorder`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ section_order: sectionOrder })
-			})
-			.then(response => response.text())
-			.then(html => {
-				document.getElementById('song-sections').innerHTML = html;
-				// Reinitialize tabs, markdown preview, and markdown content after content update
-				setTimeout(() => {
-					initializeTabs();
-					initializeMarkdownPreview();
-					initializeMarkdownContent();
-				}, 100);
-			})
-			.catch(error => {
-				console.error('Error reordering sections:', error);
-				alert('Error reordering sections');
-			});
-		}
+
 
 		function editSection(sectionId) {
 			// TODO: Implement edit functionality
@@ -475,7 +493,7 @@ templ SongSections(sections []*store.SongSection, songID string) {
 
 templ SongSectionsError(errorMsg string, songID string) {
 	<div id="song-sections" class="mt-8">
-		<div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+		<div class="bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none">
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<h2 class="text-lg font-medium text-gray-900 dark:text-white">Song Sections</h2>
 				<p class="text-sm text-gray-500 dark:text-gray-400">Organize your song into sections with lyrics, chords, or notes</p>

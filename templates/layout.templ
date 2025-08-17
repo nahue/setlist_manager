@@ -11,7 +11,7 @@ type PageData struct {
 
 templ BaseLayout(data PageData) {
 	<!DOCTYPE html>
-	<html lang="es" class="h-full bg-white dark:bg-gray-900">
+	<html lang="es" class="dark h-full bg-white dark:bg-gray-900">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -48,6 +48,59 @@ templ BaseLayout(data PageData) {
 					background-color: #dbeafe !important;
 					border-color: #3b82f6 !important;
 				}
+				/* Dark mode support for sortable classes */
+				.dark .sortable-ghost {
+					opacity: 0.5 !important;
+					background-color: #374151 !important;
+				}
+				.dark .sortable-chosen {
+					background-color: #1e3a8a !important;
+					border-color: #3b82f6 !important;
+				}
+				/* Ensure dark mode styles are applied to cloned elements during drag */
+				.dark .sortable-ghost * {
+					color: #d1d5db !important;
+				}
+				.dark .sortable-chosen * {
+					color: #e5e7eb !important;
+				}
+				/* Additional specificity for dark mode */
+				html.dark .sortable-ghost {
+					opacity: 0.5 !important;
+					background-color: #374151 !important;
+					color: #d1d5db !important;
+				}
+				html.dark .sortable-chosen {
+					background-color: #1e3a8a !important;
+					border-color: #3b82f6 !important;
+					color: #e5e7eb !important;
+				}
+				/* Target sortable elements that are children of dark mode containers */
+				.dark .sortable-ghost,
+				.dark .sortable-chosen {
+					background-color: #374151 !important;
+					color: #d1d5db !important;
+					border-color: #4b5563 !important;
+				}
+				.dark .sortable-chosen {
+					background-color: #1e3a8a !important;
+					color: #e5e7eb !important;
+					border-color: #3b82f6 !important;
+				}
+				/* Ensure all text elements in sortable items maintain dark mode colors */
+				.dark .sortable-ghost h3,
+				.dark .sortable-ghost p,
+				.dark .sortable-ghost span,
+				.dark .sortable-ghost div {
+					color: #d1d5db !important;
+				}
+				.dark .sortable-chosen h3,
+				.dark .sortable-chosen p,
+				.dark .sortable-chosen span,
+				.dark .sortable-chosen div {
+					color: #e5e7eb !important;
+				}
+
 			</style>
 		</head>
 		<body class="h-full">
