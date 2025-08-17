@@ -6,50 +6,7 @@ import (
 )
 
 templ SongSections(sections []*store.SongSection, songID string) {
-	<div id="song-sections" class="mt-8" data-song-id={ songID } x-data="{ 
-		handleSort(item, position) {
-			// Get all section elements and their IDs in current order
-			const sectionElements = document.querySelectorAll('[data-section-id]');
-			const sectionOrder = Array.from(sectionElements).map(el => el.getAttribute('data-section-id'));
-			
-			// Get song ID from data attribute
-			const songId = this.$el.getAttribute('data-song-id');
-			
-			// Send to server
-			fetch(`/api/songs/${songId}/sections/reorder`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ section_order: sectionOrder })
-			})
-			.then(response => response.text())
-			.then(html => {
-				document.getElementById('song-sections').innerHTML = html;
-				// Reinitialize tabs, markdown preview, and markdown content after content update
-				setTimeout(() => {
-					initializeTabs();
-					initializeMarkdownPreview();
-					initializeMarkdownContent();
-				}, 100);
-			})
-			.catch(error => {
-				console.error('Error reordering sections:', error);
-				alert('Error reordering sections');
-			});
-		},
-		onSortStart() {
-			// Ensure dark mode classes are applied to sortable elements
-			setTimeout(() => {
-				const isDarkMode = document.documentElement.classList.contains('dark');
-				if (isDarkMode) {
-					document.querySelectorAll('.sortable-ghost, .sortable-chosen').forEach(el => {
-						el.classList.add('dark');
-					});
-				}
-			}, 10);
-		}
-	}"
+	<div id="song-sections" class="mt-8" data-song-id={ songID }
 	>
 		<div class="bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none">
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -73,18 +30,19 @@ templ SongSections(sections []*store.SongSection, songID string) {
 							<form 
 								method="POST" 
 								action={ "/api/songs/" + songID + "/sections/generate-ai" }
-								x-target="song-sections"
-								@ajax:success="handleAISuccess($event)"
-								@ajax:error="handleAIError($event)"
+								id="ai-generate-form"
 							>
 								<button 
 									type="submit"
-									class="inline-flex items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800"
+									class="inline-flex items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+									id="ai-generate-btn"
 								>
-									<svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-									</svg>
-									Generate with AI
+									<span id="ai-generate-icon" class="-ml-1 mr-2 h-4 w-4">
+										<svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+										</svg>
+									</span>
+									<span id="ai-generate-text">Generate with AI</span>
 								</button>
 							</form>
 						</div>
@@ -93,8 +51,8 @@ templ SongSections(sections []*store.SongSection, songID string) {
 						<form
 							method="POST"
 							action={ "/api/songs/" + songID + "/sections" }
-							x-target="song-sections"
 							class="space-y-4"
+							id="manual-add-form"
 						>
 							<div>
 								<label class="block text-sm/6 font-medium text-gray-900 dark:text-white">Title *</label>
@@ -168,24 +126,17 @@ templ SongSections(sections []*store.SongSection, songID string) {
 				} else {
 					<div
 						class="space-y-4"
-						x-sort="handleSort"
-						x-sort:config="{ 
-							animation: 150,
-							ghostClass: 'sortable-ghost',
-							chosenClass: 'sortable-chosen',
-							onStart: onSortStart
-						}"
+						id="sections-container"
 					>
 						for _, section := range sections {
 							<div
-								class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [body:not(.sorting)_&]:hover:bg-gray-50 dark:[body:not(.sorting)_&]:hover:bg-gray-700/50"
+								class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
 								data-section-id={ section.ID }
-								x-sort:item={ section.ID }
 							>
 								<div class="flex justify-between items-start">
 									<div class="flex-1">
 										<div class="flex items-center space-x-2">
-											<span x-sort:handle class="cursor-move text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
+											<span class="cursor-move text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
 												<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
 												</svg>
@@ -213,7 +164,7 @@ templ SongSections(sections []*store.SongSection, songID string) {
 										<button onclick="editSection('{ section.ID }')" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium">
 											Edit
 										</button>
-										<form method="delete" action={ "/api/songs/" + songID + "/sections/" + section.ID } x-target="song-sections" @ajax:before="confirm('Are you sure you want to delete this section?') || $event.preventDefault()">
+										<form method="delete" action={ "/api/songs/" + songID + "/sections/" + section.ID } class="inline">
 											<button type="submit" class="text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium">
 												Delete
 											</button>
@@ -230,7 +181,7 @@ templ SongSections(sections []*store.SongSection, songID string) {
 						<form
 							method="POST"
 							action={ "/api/songs/" + songID + "/sections" }
-							x-target="song-sections"
+							id="manual-add-form-2"
 						>
 							<div class="space-y-4">
 								<div>
@@ -316,9 +267,19 @@ templ SongSections(sections []*store.SongSection, songID string) {
 			
 			// Initialize markdown preview
 			initializeMarkdownPreview();
+			
+			// Initialize form handlers
+			initializeAIGeneration();
+			initializeManualForms();
 		});
 
 		function handleAISuccess(event) {
+			// Reset loading state
+			const songSections = document.getElementById('song-sections');
+			if (songSections && songSections._x_dataStack && songSections._x_dataStack[0]) {
+				songSections._x_dataStack[0].isGenerating = false;
+			}
+			
 			// Wait a bit for the DOM to update, then reinitialize the components
 			setTimeout(() => {
 				console.log('Reinitializing components after AI generation...');
@@ -335,6 +296,12 @@ templ SongSections(sections []*store.SongSection, songID string) {
 		}
 
 		function handleAIError(event) {
+			// Reset loading state
+			const songSections = document.getElementById('song-sections');
+			if (songSections && songSections._x_dataStack && songSections._x_dataStack[0]) {
+				songSections._x_dataStack[0].isGenerating = false;
+			}
+			
 			console.error('Error generating sections:', event.detail);
 			showNotification('Failed to generate sections. Please try again.', 'error');
 		}
@@ -454,6 +421,173 @@ templ SongSections(sections []*store.SongSection, songID string) {
 			// TODO: Implement edit functionality
 			alert('Edit functionality coming soon!');
 		}
+
+		function initializeAIGeneration() {
+			const form = document.getElementById('ai-generate-form');
+			if (form) {
+				form.addEventListener('submit', function(e) {
+					e.preventDefault(); // Prevent default form submission
+					
+					// Show loading state immediately
+					showAILoadingState();
+					
+					// Get form data
+					const formData = new FormData(form);
+					
+					// Make AJAX request
+					fetch(form.action, {
+						method: 'POST',
+						body: formData
+					})
+					.then(response => response.text())
+					.then(html => {
+						// Update the song-sections container with the new HTML
+						document.getElementById('song-sections').innerHTML = html;
+						
+						// Reinitialize components
+						setTimeout(() => {
+							initializeTabs();
+							initializeMarkdownPreview();
+							initializeAIGeneration(); // Reinitialize for the new form
+							initializeManualForms(); // Reinitialize manual forms
+						}, 100);
+						
+						// Show success notification
+						showNotification('Song sections generated successfully!', 'success');
+					})
+					.catch(error => {
+						console.error('Error generating sections:', error);
+						showNotification('Failed to generate sections. Please try again.', 'error');
+						
+						// Reset loading state on error
+						resetAILoadingState();
+					});
+				});
+			}
+		}
+
+		function initializeManualForms() {
+			// Handle both manual add forms
+			const forms = ['manual-add-form', 'manual-add-form-2'];
+			
+			forms.forEach(formId => {
+				const form = document.getElementById(formId);
+				if (form) {
+					form.addEventListener('submit', function(e) {
+						e.preventDefault(); // Prevent default form submission
+						
+						// Get form data
+						const formData = new FormData(form);
+						
+						// Make AJAX request
+						fetch(form.action, {
+							method: 'POST',
+							body: formData
+						})
+						.then(response => response.text())
+						.then(html => {
+							// Update the song-sections container with the new HTML
+							document.getElementById('song-sections').innerHTML = html;
+							
+							// Reinitialize components
+							setTimeout(() => {
+								initializeTabs();
+								initializeMarkdownPreview();
+								initializeAIGeneration(); // Reinitialize AI form
+								initializeManualForms(); // Reinitialize manual forms
+							}, 100);
+							
+							// Show success notification
+							showNotification('Section added successfully!', 'success');
+						})
+						.catch(error => {
+							console.error('Error adding section:', error);
+							showNotification('Failed to add section. Please try again.', 'error');
+						});
+					});
+				}
+			});
+		}
+
+		function showAILoadingState() {
+			const btn = document.getElementById('ai-generate-btn');
+			const icon = document.getElementById('ai-generate-icon');
+			const text = document.getElementById('ai-generate-text');
+			
+			if (btn && icon && text) {
+				btn.disabled = true;
+				icon.innerHTML = `
+					<svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+				`;
+				text.textContent = 'Generating...';
+			}
+		}
+
+		function resetAILoadingState() {
+			const btn = document.getElementById('ai-generate-btn');
+			const icon = document.getElementById('ai-generate-icon');
+			const text = document.getElementById('ai-generate-text');
+			
+			if (btn && icon && text) {
+				btn.disabled = false;
+				icon.innerHTML = `
+					<svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+					</svg>
+				`;
+				text.textContent = 'Generate with AI';
+			}
+		}
+
+		function handleSort(item, position) {
+			// Get all section elements and their IDs in current order
+			const sectionElements = document.querySelectorAll('[data-section-id]');
+			const sectionOrder = Array.from(sectionElements).map(el => el.getAttribute('data-section-id'));
+			
+			// Get song ID from data attribute
+			const songSections = document.getElementById('song-sections');
+			const songId = songSections.getAttribute('data-song-id');
+			
+			// Send to server
+			fetch(`/api/songs/${songId}/sections/reorder`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ section_order: sectionOrder })
+			})
+			.then(response => response.text())
+			.then(html => {
+				document.getElementById('song-sections').innerHTML = html;
+				// Reinitialize tabs, markdown preview, and markdown content after content update
+				setTimeout(() => {
+					initializeTabs();
+					initializeMarkdownPreview();
+					initializeMarkdownContent();
+				}, 100);
+			})
+			.catch(error => {
+				console.error('Error reordering sections:', error);
+				alert('Error reordering sections');
+			});
+		}
+
+		function onSortStart() {
+			// Ensure dark mode classes are applied to sortable elements
+			setTimeout(() => {
+				const isDarkMode = document.documentElement.classList.contains('dark');
+				if (isDarkMode) {
+					document.querySelectorAll('.sortable-ghost, .sortable-chosen').forEach(el => {
+						el.classList.add('dark');
+					});
+				}
+			}, 10);
+		}
+
+
 	</script>
 }
 
@@ -481,7 +615,6 @@ templ SongSectionsError(errorMsg string, songID string) {
 					<form
 						method="POST"
 						action={ "/api/songs/" + songID + "/sections" }
-						x-target="song-sections"
 						class="space-y-3"
 					>
 						<div>

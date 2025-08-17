@@ -49,6 +49,9 @@ type AIGenerationResponse struct {
 
 // GenerateSongSections generates song sections using AI
 func (s *AIService) GenerateSongSections(req *AIGenerationRequest) (*AIGenerationResponse, error) {
+	// Add a 1-second delay to simulate processing time
+	time.Sleep(1 * time.Second)
+
 	// If no OpenAI key is configured, return sample data
 	if s.openAIKey == "" {
 		return s.generateSampleSections(req.SongTitle, req.Artist), nil
@@ -200,4 +203,3 @@ func (s *AIService) generateSampleSections(songTitle, artist string) *AIGenerati
 		},
 	}
 }
-
