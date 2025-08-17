@@ -57,3 +57,15 @@ tasks:
     cmds:
       - rm -f ./data/setlist_manager.db
       - goose sqlite3 ./data/setlist_manager.db -dir ./migrations up
+
+  db:seed:
+    desc: Seed database with sample data
+    deps: [db:migrate]
+    cmds:
+      - go run cmd/seed/main.go
+
+  db:reset-and-seed:
+    desc: Reset database and seed with sample data
+    cmds:
+      - task: db:reset
+      - task: db:seed
