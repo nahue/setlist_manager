@@ -118,6 +118,7 @@ func (app *Application) setupRoutes() {
 		r.Post("/api/bands/songs/reorder", app.songsHandler.ReorderSongs)
 		r.Delete("/api/bands/songs/{songID}", app.songsHandler.DeleteSong)
 		r.Post("/api/songs/{songID}/generate-content", app.songsHandler.GenerateSongContent)
+		r.Post("/api/songs/{songID}/update-content", app.songsHandler.UpdateSongContent)
 
 		// Invitation routes
 		r.Get("/api/invitations", app.bandsHandler.GetInvitations)

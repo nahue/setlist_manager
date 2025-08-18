@@ -332,7 +332,10 @@ func (h *SongHandler) ServeSongDetails(w http.ResponseWriter, r *http.Request) {
 		IsActive:    band.IsActive,
 	}
 
-	// Process song content to convert markdown to HTML
+	// Store original markdown content for editing
+	originalMarkdown := song.Content
+
+	// Process song content to convert markdown to HTML for display
 	if song.Content != "" {
 		htmlContent := h.markdownService.ParseMarkdown(song.Content)
 		song.Content = string(htmlContent)
@@ -340,7 +343,7 @@ func (h *SongHandler) ServeSongDetails(w http.ResponseWriter, r *http.Request) {
 
 	// Render the song details page
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongDetailsPage(song, bandType, user).Render(r.Context(), w)
+	err = templates.SongDetailsPage(song, bandType, user, originalMarkdown).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song details page: %v", err)
 		http.Error(w, "Failed to render song details page", http.StatusInternalServerError)
@@ -513,6 +516,89 @@ func (h *SongHandler) EditSong(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/song?id="+songID, http.StatusSeeOther)
 }
 
+// UpdateSongContent handles POST /api/songs/{songID}/update-content
+func (h *SongHandler) UpdateSongContent(w http.ResponseWriter, r *http.Request) {
+	// Extract song ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+	songID := pathParts[3]
+
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get song to check band membership
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Parse form data
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	// Extract content
+	content := r.FormValue("content")
+
+	// Update song content
+	err = h.songsDB.UpdateSong(songID, song.Title, song.Artist, song.Key, song.Notes, content, song.Tempo)
+	if err != nil {
+		log.Printf("Error updating song content: %v", err)
+		http.Error(w, "Failed to update song content", http.StatusInternalServerError)
+		return
+	}
+
+	// Get the updated song with processed content
+	updatedSong, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting updated song: %v", err)
+		http.Error(w, "Failed to get updated song", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare original markdown and processed HTML
+	originalMarkdown := updatedSong.Content
+	if updatedSong.Content != "" {
+		htmlContent := h.markdownService.ParseMarkdown(updatedSong.Content)
+		updatedSong.Content = string(htmlContent)
+	}
+
+	// Return HTML response with the updated song content
+	w.Header().Set("Content-Type", "text/html")
+	err = templates.SongContent(updatedSong, originalMarkdown).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering song content: %v", err)
+		http.Error(w, "Failed to render song content", http.StatusInternalServerError)
+		return
+	}
+}
+
 // ServeEditSong handles GET /song/edit
 func (h *SongHandler) ServeEditSong(w http.ResponseWriter, r *http.Request) {
 	songID := r.URL.Query().Get("id")
@@ -657,7 +743,8 @@ func (h *SongHandler) GenerateSongContent(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Process song content to convert markdown to HTML
+	// Prepare original markdown and processed HTML
+	originalMarkdown := updatedSong.Content
 	if updatedSong.Content != "" {
 		htmlContent := h.markdownService.ParseMarkdown(updatedSong.Content)
 		updatedSong.Content = string(htmlContent)
@@ -665,7 +752,7 @@ func (h *SongHandler) GenerateSongContent(w http.ResponseWriter, r *http.Request
 
 	// Return HTML response with the updated song content
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongContent(updatedSong).Render(r.Context(), w)
+	err = templates.SongContent(updatedSong, originalMarkdown).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song content: %v", err)
 		http.Error(w, "Failed to render song content", http.StatusInternalServerError)

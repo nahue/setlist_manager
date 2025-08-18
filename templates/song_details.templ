@@ -31,16 +31,16 @@ templ SongDetailsError(message string, songID string) {
 	</div>
 }
 
-templ SongDetailsPage(song *store.Song, band *types.Band, user *types.User) {
+templ SongDetailsPage(song *store.Song, band *types.Band, user *types.User, originalMarkdown string) {
 	@BaseLayout(PageData{
 		Title: band.Name + " - " + song.Title,
 		Description: "Detalles e información de la canción",
-		Content: SongDetailsContent(song, band),
+		Content: SongDetailsContent(song, band, originalMarkdown),
 		User: user,
 	})
 }
 
-templ SongDetailsContent(song *store.Song, band *types.Band) {
+templ SongDetailsContent(song *store.Song, band *types.Band, originalMarkdown string) {
 	<div class="max-w-4xl mx-auto">
 		<!-- Header -->
 		<div class="mb-8">
@@ -154,7 +154,7 @@ templ SongDetailsContent(song *store.Song, band *types.Band) {
 		</div>
 
 		<!-- Song Content -->
-		@SongContent(song)
+		@SongContent(song, originalMarkdown)
 	</div>
 
 	<script>
@@ -168,6 +168,22 @@ templ SongDetailsContent(song *store.Song, band *types.Band) {
 		function handleAIError(event) {
 			console.error('Error generating content:', event.detail);
 			showNotification('Error al generar contenido con IA. Por favor intenta de nuevo.', 'error');
+		}
+
+		function handleContentSaveSuccess(event) {
+			// Show success notification
+			showNotification('Contenido guardado exitosamente!', 'success');
+			
+			// Exit edit mode
+			const songContent = document.getElementById('song-content');
+			if (songContent && songContent._x_dataStack && songContent._x_dataStack[0]) {
+				songContent._x_dataStack[0].editContent = false;
+			}
+		}
+
+		function handleContentSaveError(event) {
+			console.error('Error saving content:', event.detail);
+			showNotification('Error al guardar contenido. Por favor intenta de nuevo.', 'error');
 		}
 
 		function showNotification(message, type) {
@@ -186,11 +202,114 @@ templ SongDetailsContent(song *store.Song, band *types.Band) {
 				notification.remove();
 			}, 3000);
 		}
+
+		// Initialize markdown preview functionality
+		document.addEventListener('DOMContentLoaded', function() {
+			// Initialize tabs
+			initializeTabs();
+			
+			// Initialize markdown preview
+			initializeMarkdownPreview();
+		});
+
+		function initializeTabs() {
+			document.querySelectorAll('.tab-button').forEach(button => {
+				button.addEventListener('click', function() {
+					const tabName = this.getAttribute('data-tab');
+					const tabContainer = this.closest('.space-y-4');
+					
+					// Update button states
+					tabContainer.querySelectorAll('.tab-button').forEach(btn => {
+						btn.classList.remove('border-indigo-500', 'text-indigo-600');
+						btn.classList.add('border-transparent', 'text-gray-500');
+					});
+					this.classList.remove('border-transparent', 'text-gray-500');
+					this.classList.add('border-indigo-500', 'text-indigo-600');
+					
+					// Update tab content visibility
+					tabContainer.querySelectorAll('.tab-content').forEach(content => {
+						if (content.getAttribute('data-tab') === tabName) {
+							content.classList.remove('hidden');
+							content.classList.add('active');
+						} else {
+							content.classList.add('hidden');
+							content.classList.remove('active');
+						}
+					});
+					
+					// Update preview if switching to preview tab
+					if (tabName === 'preview') {
+						updateMarkdownPreview(tabContainer);
+					}
+				});
+			});
+		}
+
+		function initializeMarkdownPreview() {
+			document.querySelectorAll('.markdown-editor').forEach(textarea => {
+				textarea.addEventListener('input', function() {
+					const tabContainer = this.closest('.space-y-4');
+					const previewTab = tabContainer.querySelector('[data-tab="preview"]');
+					if (previewTab && !previewTab.classList.contains('hidden')) {
+						updateMarkdownPreview(tabContainer);
+					}
+				});
+			});
+		}
+
+		function updateMarkdownPreview(tabContainer) {
+			const textarea = tabContainer.querySelector('.markdown-editor');
+			const preview = tabContainer.querySelector('.markdown-preview');
+			
+			if (textarea && preview) {
+				const markdownText = textarea.value;
+				if (markdownText.trim() === '') {
+					preview.innerHTML = '<div class="text-gray-500 dark:text-gray-400 italic">Vista previa aparecerá aquí...</div>';
+				} else {
+					// Use marked library for proper markdown parsing
+					try {
+						// Configure marked options
+						marked.setOptions({
+							breaks: true, // Convert line breaks to <br>
+							gfm: true,    // GitHub Flavored Markdown
+							headerIds: false, // Disable header IDs for security
+							mangle: false,    // Disable mangling
+							sanitize: false   // We'll handle sanitization with DOMPurify if needed
+						});
+						
+						// Parse markdown to HTML
+						const html = marked.parse(markdownText);
+						
+						// Apply custom styling classes
+						let styledHtml = html
+							// Add Tailwind classes to headers
+							.replace(/<h1>/g, '<h1 class="text-2xl font-bold mt-4 mb-3 text-gray-900 dark:text-white">')
+							.replace(/<h2>/g, '<h2 class="text-xl font-semibold mt-3 mb-2 text-gray-900 dark:text-white">')
+							.replace(/<h3>/g, '<h3 class="text-lg font-semibold mt-2 mb-1 text-gray-900 dark:text-white">')
+							// Add Tailwind classes to links
+							.replace(/<a /g, '<a class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 underline" target="_blank" ')
+							// Add Tailwind classes to lists
+							.replace(/<ul>/g, '<ul class="list-disc ml-4 mb-2 text-gray-900 dark:text-white">')
+							.replace(/<ol>/g, '<ol class="list-decimal ml-4 mb-2 text-gray-900 dark:text-white">')
+							// Add Tailwind classes to code blocks
+							.replace(/<code>/g, '<code class="bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded text-sm font-mono text-gray-900 dark:text-white">')
+							.replace(/<pre>/g, '<pre class="bg-gray-100 dark:bg-gray-600 p-3 rounded text-sm font-mono overflow-x-auto text-gray-900 dark:text-white">')
+							// Add Tailwind classes to blockquotes
+							.replace(/<blockquote>/g, '<blockquote class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-900 dark:text-white">');
+						
+						preview.innerHTML = styledHtml;
+					} catch (error) {
+						console.error('Error parsing markdown:', error);
+						preview.innerHTML = '<div class="text-red-500 dark:text-red-400">Error parsing markdown</div>';
+					}
+				}
+			}
+		}
 	</script>
 }
 
-templ SongContent(song *store.Song) {
-	<div id="song-content" class="mt-8" data-song-id={ song.ID }>
+templ SongContent(song *store.Song, originalMarkdown string) {
+	<div id="song-content" class="mt-8" data-song-id={ song.ID } x-data="{ editContent: false, activeTab: 'edit', content: '', originalContent: '' }" x-init="content = $refs.initialContent.value; originalContent = content">
 		<div class="bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none">
 			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
 				<div class="flex justify-between items-center">
@@ -198,52 +317,65 @@ templ SongContent(song *store.Song) {
 						<h2 class="text-lg font-medium text-gray-900 dark:text-white">Contenido de la Canción</h2>
 						<p class="text-sm text-gray-500 dark:text-gray-400">Letras, acordes, notas y cualquier información relevante para la práctica</p>
 					</div>
-					if song.Content == "" {
-						<form 
-							method="POST" 
-							action={ "/api/songs/" + song.ID + "/generate-content" }
-							x-data="{ isGenerating: false }"
-							x-target="song-content"
-							@submit="isGenerating = true"
-							@ajax:before="isGenerating = true"
-							@ajax:after="isGenerating = false"
-							@ajax:success="handleAISuccess"
-							@ajax:error="handleAIError"
-						>
-							<button 
-								type="submit" 
-								:disabled="isGenerating"
-								class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+					<div class="flex space-x-2">
+						if song.Content == "" {
+							<form 
+								method="POST" 
+								action={ "/api/songs/" + song.ID + "/generate-content" }
+								x-ajax
+								x-data="{ isGenerating: false }"
+								x-target="song-content"
+								@submit="isGenerating = true"
+								@ajax:before="isGenerating = true"
+								@ajax:after="isGenerating = false"
+								@ajax:success="handleAISuccess"
+								@ajax:error="handleAIError"
 							>
-								<svg 
-									:class="isGenerating ? 'animate-spin' : ''"
-									class="-ml-1 mr-2 h-4 w-4" 
-									fill="none" 
-									viewBox="0 0 24 24" 
-									stroke="currentColor"
+								<button 
+									type="submit" 
+									:disabled="isGenerating"
+									class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
-									<path 
-										v-if="!isGenerating"
-										stroke-linecap="round" 
-										stroke-linejoin="round" 
-										stroke-width="2" 
-										d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-									></path>
-									<path 
-										v-if="isGenerating"
-										stroke-linecap="round" 
-										stroke-linejoin="round" 
-										stroke-width="2" 
-										d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-									></path>
-								</svg>
-								<span x-text="isGenerating ? 'Generando...' : 'Generar con IA'"></span>
-							</button>
-						</form>
-					}
+									<svg 
+										:class="isGenerating ? 'animate-spin' : ''"
+										class="-ml-1 mr-2 h-4 w-4" 
+										fill="none" 
+										viewBox="0 0 24 24" 
+										stroke="currentColor"
+									>
+										<path 
+											v-if="!isGenerating"
+											stroke-linecap="round" 
+											stroke-linejoin="round" 
+											stroke-width="2" 
+											d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+										></path>
+										<path 
+											v-if="isGenerating"
+											stroke-linecap="round" 
+											stroke-linejoin="round" 
+											stroke-width="2" 
+											d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+										></path>
+									</svg>
+									<span x-text="isGenerating ? 'Generando...' : 'Generar con IA'"></span>
+								</button>
+							</form>
+						}
+						<button 
+							@click="editContent = true"
+							class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+						>
+							<svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+							</svg>
+							Editar Contenido
+						</button>
+					</div>
 				</div>
 			</div>
 			<div class="p-6">
+				<textarea x-ref="initialContent" class="hidden" hidden>{ originalMarkdown }</textarea>
 				if song.Content == "" {
 					<div class="text-center py-8">
 						<svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -253,8 +385,75 @@ templ SongContent(song *store.Song) {
 						<p class="text-xs text-gray-400 dark:text-gray-500">Usa IA para generar contenido o edita la canción para agregar letras, acordes y notas</p>
 					</div>
 				} else {
-					<div class="prose prose-sm max-w-none dark:prose-invert">
+					<!-- View Mode -->
+					<div x-show="!editContent" class="prose prose-sm max-w-none dark:prose-invert">
 						@templ.Raw(song.Content)
+					</div>
+					
+					<!-- Edit Mode -->
+					<div x-show="editContent" class="space-y-4">
+						<div class="flex space-x-2 border-b border-gray-300 dark:border-gray-600">
+							<button 
+								type="button" 
+								class="tab-button border-b-2 border-indigo-500 text-indigo-600 px-3 py-2 text-sm font-medium" 
+								data-tab="edit"
+								@click="activeTab = 'edit'"
+							>
+								Editar
+							</button>
+							<button 
+								type="button" 
+								class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" 
+								data-tab="preview"
+								@click="activeTab = 'preview'"
+							>
+								Vista Previa
+							</button>
+						</div>
+						
+						<div x-show="activeTab === 'edit'" class="tab-content active" data-tab="edit">
+							<textarea 
+								x-model="content"
+								rows="15"
+								class="markdown-editor block w-full rounded-md bg-white dark:bg-gray-700 px-3 py-1.5 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500 sm:text-sm/6"
+								placeholder="Escribe aquí el contenido de la canción usando Markdown...&#10;&#10;Ejemplos:&#10;# Título&#10;## Sección&#10;**Negrita** o *cursiva*&#10;- Lista&#10;1. Lista numerada"
+							></textarea>
+						</div>
+						
+						<div x-show="activeTab === 'preview'" class="tab-content hidden" data-tab="preview">
+							<div class="markdown-preview block w-full rounded-md bg-gray-50 dark:bg-gray-700 px-3 py-1.5 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 sm:text-sm/6 min-h-[200px] prose prose-sm max-w-none dark:prose-invert">
+								<div class="text-gray-500 dark:text-gray-400 italic">Vista previa aparecerá aquí...</div>
+							</div>
+						</div>
+						
+						<div class="flex justify-end space-x-3">
+							<button 
+								@click="editContent = false; content = originalContent"
+								class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+							>
+								Cancelar
+							</button>
+							<form 
+								method="POST" 
+								action={ "/api/songs/" + song.ID + "/update-content" }
+								x-data="{ isSaving: false }"
+								x-target="song-content"
+								@submit="isSaving = true"
+								@ajax:before="isSaving = true"
+								@ajax:after="isSaving = false"
+								@ajax:success="handleContentSaveSuccess"
+								@ajax:error="handleContentSaveError"
+							>
+								<input type="hidden" name="content" x-model="content">
+								<button 
+									type="submit" 
+									:disabled="isSaving"
+									class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+								>
+									<span x-text="isSaving ? 'Guardando...' : 'Guardar'"></span>
+								</button>
+							</form>
+						</div>
 					</div>
 				}
 			</div>
