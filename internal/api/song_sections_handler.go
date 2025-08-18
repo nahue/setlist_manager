@@ -433,6 +433,7 @@ func (h *SongSectionsHandler) GenerateAISongSections(w http.ResponseWriter, r *h
 		SongTitle: song.Title,
 		Artist:    song.Artist,
 		Prompt:    prompt,
+		Key:       song.Key,
 	}
 
 	aiResponse, err := h.aiService.GenerateSongSections(aiReq)
@@ -447,7 +448,7 @@ func (h *SongSectionsHandler) GenerateAISongSections(w http.ResponseWriter, r *h
 
 	// Create the AI-generated sections
 	for _, section := range aiResponse.Sections {
-		_, err := h.sectionsDB.CreateSongSection(songID, section.Title, section.Key, section.Body, user.ID)
+		_, err := h.sectionsDB.CreateSongSection(songID, section.Name, section.Key, section.Body, user.ID)
 		if err != nil {
 			log.Printf("Error creating AI-generated section: %v", err)
 			// Continue with other sections even if one fails
@@ -477,26 +478,7 @@ func (h *SongSectionsHandler) GenerateAISongSections(w http.ResponseWriter, r *h
 
 // generateAIPrompt creates a prompt for AI song section generation
 func (h *SongSectionsHandler) generateAIPrompt(songTitle, artist string) string {
-	return fmt.Sprintf(`Generate song sections for "%s" by %s. Please provide the response in the following JSON format:
-
-{
-  "song_title": "%s",
-  "artist": "%s",
-  "sections": [
-    {
-      "title": "Intro",
-      "key": "C",
-      "body": "**Intro (4 bars)**\\n\\nC - Am - F - G\\n\\n*Simple chord progression to establish the key*"
-    },
-    {
-      "title": "Verse 1",
-      "key": "C",
-      "body": "**Verse 1**\\n\\nC           Am          F           G\\nThis is the first verse of our song\\n\\nC           Am          F           G\\nWith chords written above the lyrics\\n\\n*Play with a gentle strumming pattern*"
-    }
-  ]
-}
-
-Please generate realistic song sections with proper chord progressions, lyrics, and musical instructions. Use Markdown formatting in the body content.`, songTitle, artist, songTitle, artist)
+	return fmt.Sprintf(`Generate a comprehensive band practice cheatsheet for "%s" by %s. Focus on performance aspects, dynamics, and musical feel rather than specific chord names. Include only minimal lyric references (2-4 words) to identify sections while respecting copyright. Describe playing style, tone, and technique rather than exact notes. Pay special attention to how sections connect and how the song builds and releases tension.`, songTitle, artist)
 }
 
 // processSectionsForRendering converts markdown content to HTML for all sections

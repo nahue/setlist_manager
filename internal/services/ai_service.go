@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -26,11 +27,21 @@ func NewAIService() *AIService {
 	}
 }
 
+// SongInfo represents song metadata for the cheatsheet
+type SongInfo struct {
+	Title         string `json:"title"`
+	Artist        string `json:"artist"`
+	OriginalKey   string `json:"original_key"`
+	Tempo         string `json:"tempo"`
+	TimeSignature string `json:"time_signature"`
+	Duration      string `json:"duration"`
+}
+
 // SongSection represents a song section for AI generation
 type SongSection struct {
-	Title string `json:"title"`
-	Key   string `json:"key"`
-	Body  string `json:"body"`
+	Name string `json:"name"`
+	Key  string `json:"key"`
+	Body string `json:"body"`
 }
 
 // AIGenerationRequest represents the request for AI generation
@@ -38,13 +49,13 @@ type AIGenerationRequest struct {
 	SongTitle string `json:"song_title"`
 	Artist    string `json:"artist"`
 	Prompt    string `json:"prompt"`
+	Key       string `json:"key"`
 }
 
 // AIGenerationResponse represents the response from AI generation
 type AIGenerationResponse struct {
-	SongTitle string        `json:"song_title"`
-	Artist    string        `json:"artist"`
-	Sections  []SongSection `json:"sections"`
+	SongInfo SongInfo      `json:"song_info"`
+	Sections []SongSection `json:"sections"`
 }
 
 // GenerateSongSections generates song sections using AI
@@ -57,29 +68,14 @@ func (s *AIService) GenerateSongSections(req *AIGenerationRequest) (*AIGeneratio
 		return s.generateSampleSections(req.SongTitle, req.Artist), nil
 	}
 
-	// Create the prompt for ChatGPT
-	prompt := fmt.Sprintf(`You are a music expert and songwriter. Generate song sections for "%s" by %s. 
+	// Create the prompt for ChatGPT using a flexible format
+	prompt := fmt.Sprintf(`Generate song sections for "%s" by %s in the key of %s. 
 
-Please provide the response in the following JSON format:
+Return JSON in this exact format:
 
-{
-  "song_title": "%s",
-  "artist": "%s",
-  "sections": [
-    {
-      "title": "Intro",
-      "key": "C",
-      "body": "**Intro (4 bars)**\\n\\nC - Am - F - G\\n\\n*Simple chord progression to establish the key*"
-    },
-    {
-      "title": "Verse 1",
-      "key": "C",
-      "body": "**Verse 1**\\n\\nC           Am          F           G\\nThis is the first verse of our song\\n\\nC           Am          F           G\\nWith chords written above the lyrics\\n\\n*Play with a gentle strumming pattern*"
-    }
-  ]
-}
+{"song_info":{"title":"%s","artist":"%s","original_key":"%s","tempo":"[BPM and feel]","time_signature":"[4/4, 3/4, etc.]","duration":"[mm:ss]"},"sections":[{"name":"[section_name]","key":"%s","body":"**Lyrics:** [Complete lyrics]\\n\\n**Notes:** [Performance notes]"}]}
 
-Please generate realistic song sections with proper chord progressions, lyrics, and musical instructions. Use Markdown formatting in the body content. Include 4-6 sections like Intro, Verse 1, Chorus, Verse 2, Bridge, and Outro.`, req.SongTitle, req.Artist, req.SongTitle, req.Artist)
+IMPORTANT: For each section, provide the COMPLETE lyrics. Do not use placeholders like [Instrumental], [...], or partial lyrics. Write out the full lyrics for each section. For instrumental sections, write "(Instrumental)" as the lyrics.`, req.SongTitle, req.Artist, req.Key, req.SongTitle, req.Artist, req.Key, req.Key)
 
 	// Call OpenAI API
 	openAIReq := map[string]interface{}{
@@ -87,7 +83,7 @@ Please generate realistic song sections with proper chord progressions, lyrics, 
 		"messages": []map[string]string{
 			{
 				"role":    "system",
-				"content": "You are a music expert and songwriter. Generate song sections in the exact JSON format requested.",
+				"content": "You are a music expert and band practice coach. Generate comprehensive band practice cheatsheets in the exact JSON format requested, focusing on performance aspects rather than technical music theory.",
 			},
 			{
 				"role":    "user",
@@ -95,7 +91,7 @@ Please generate realistic song sections with proper chord progressions, lyrics, 
 			},
 		},
 		"temperature": 0.7,
-		"max_tokens":  2000,
+		"max_tokens":  4096,
 	}
 
 	jsonData, err := json.Marshal(openAIReq)
@@ -154,51 +150,83 @@ Please generate realistic song sections with proper chord progressions, lyrics, 
 		return nil, fmt.Errorf("invalid content format")
 	}
 
-	// Parse the JSON content from the AI response
-	var aiResponse AIGenerationResponse
-	if err := json.Unmarshal([]byte(content), &aiResponse); err != nil {
-		// If parsing fails, return sample data
-		return s.generateSampleSections(req.SongTitle, req.Artist), nil
+	// Clean the content by removing markdown code blocks if present
+	cleanedContent := content
+	if strings.HasPrefix(strings.TrimSpace(content), "```") {
+		lines := strings.Split(content, "\n")
+		if len(lines) > 2 {
+			// Remove first line (```json) and last line (```)
+			cleanedContent = strings.Join(lines[1:len(lines)-1], "\n")
+		}
 	}
 
+	// If the JSON is truncated, try to complete it
+	if !strings.HasSuffix(strings.TrimSpace(cleanedContent), "}") {
+		// Find the last complete object and close it
+		lastBrace := strings.LastIndex(cleanedContent, "}")
+		if lastBrace > 0 {
+			cleanedContent = cleanedContent[:lastBrace+1]
+		}
+	}
+
+	// Parse the JSON content from the AI response
+	var aiResponse AIGenerationResponse
+	if err := json.Unmarshal([]byte(cleanedContent), &aiResponse); err != nil {
+		// If parsing fails, return the error with the content for debugging
+		return nil, fmt.Errorf("failed to parse AI response JSON: %w\nAI Response Content: %s", err, content)
+	}
+
+	// Convert escaped newlines to actual newlines in the body content
+	for i := range aiResponse.Sections {
+		aiResponse.Sections[i].Body = strings.ReplaceAll(aiResponse.Sections[i].Body, "\\n", "\n")
+	}
+
+	fmt.Println("AI Prompt:", prompt)
+	fmt.Println("AI Response:", aiResponse)
 	return &aiResponse, nil
 }
 
 // generateSampleSections creates sample song sections when AI is not available
 func (s *AIService) generateSampleSections(songTitle, artist string) *AIGenerationResponse {
 	return &AIGenerationResponse{
-		SongTitle: songTitle,
-		Artist:    artist,
+		SongInfo: SongInfo{
+			Title:         songTitle,
+			Artist:        artist,
+			OriginalKey:   "C",
+			Tempo:         "120 BPM, driving rock",
+			TimeSignature: "4/4",
+			Duration:      "03:00",
+		},
 		Sections: []SongSection{
 			{
-				Title: "Intro",
-				Key:   "C",
-				Body:  "**Intro (4 bars)**\n\nC - Am - F - G\n\n*Simple chord progression to establish the key*",
+				Name: "intro",
+				Key:  "C",
+				Body: "**Lyrics:** [Instrumental intro]\n\n**Notes:** Gentle arpeggiated chords, establish the mood, everyone enters together",
 			},
 			{
-				Title: "Verse 1",
-				Key:   "C",
-				Body:  fmt.Sprintf("**Verse 1**\n\nC           Am          F           G\nThis is the first verse of %s\n\nC           Am          F           G\nBy %s with chords above lyrics\n\n*Play with a gentle strumming pattern*", songTitle, artist),
+				Name: "verse_1",
+				Key:  "C",
+				Body: "**Lyrics:** This is the first verse of our song\nWith chords written above the lyrics\n\n**Notes:** Clean strumming, medium volume, building energy, clear vocal delivery",
 			},
 			{
-				Title: "Chorus",
-				Key:   "C",
-				Body:  "**Chorus**\n\nF           C           G           Am\nThis is the chorus, it's the hook\n\nF           C           G           Am\nThat everyone will remember\n\n*Build up the energy here*",
+				Name: "chorus",
+				Key:  "C",
+				Body: "**Lyrics:** This is the chorus, it's the hook\nThat everyone will remember\n\n**Notes:** High energy, power chords, full band, anthemic feel",
 			},
 			{
-				Title: "Verse 2",
-				Key:   "C",
-				Body:  "**Verse 2**\n\nC           Am          F           G\nSecond verse with different lyrics\n\nC           Am          F           G\nBut same chord progression as verse 1",
+				Name: "verse_2",
+				Key:  "C",
+				Body: "**Lyrics:** Second verse with different lyrics\nBut same chord progression as verse 1\n\n**Notes:** More intensity than verse 1, add guitar fills, stronger vocal delivery",
 			},
 			{
-				Title: "Bridge",
-				Key:   "Am",
-				Body:  "**Bridge**\n\nAm          F           C           G\nBridge section changes the mood\n\nAm          F           C           G\nDifferent chord progression here\n\n*Play with more intensity*",
+				Name: "bridge",
+				Key:  "Am",
+				Body: "**Lyrics:** Bridge section changes the mood\nDifferent chord progression here\n\n**Notes:** Different key, emotional intensity, fingerpicking, dramatic pause",
 			},
 			{
-				Title: "Outro",
-				Key:   "C",
-				Body:  "**Outro**\n\nC - Am - F - G (repeat 2x)\n\n*Fade out gradually*\n\n**End on C**",
+				Name: "outro",
+				Key:  "C",
+				Body: "**Lyrics:** Final lyrics for the outro\nEnding with a gentle fade\n\n**Notes:** Gradual fade out, sustained chords, soft ending",
 			},
 		},
 	}
