@@ -31,16 +31,16 @@ templ SongDetailsError(message string, songID string) {
 	</div>
 }
 
-templ SongDetailsPage(song *store.Song, band *types.Band, sections []*store.SongSection, user *types.User) {
+templ SongDetailsPage(song *store.Song, band *types.Band, user *types.User) {
 	@BaseLayout(PageData{
 		Title: band.Name + " - " + song.Title,
 		Description: "Detalles e información de la canción",
-		Content: SongDetailsContent(song, band, sections),
+		Content: SongDetailsContent(song, band),
 		User: user,
 	})
 }
 
-templ SongDetailsContent(song *store.Song, band *types.Band, sections []*store.SongSection) {
+templ SongDetailsContent(song *store.Song, band *types.Band) {
 	<div class="max-w-4xl mx-auto">
 		<!-- Header -->
 		<div class="mb-8">
@@ -153,7 +153,111 @@ templ SongDetailsContent(song *store.Song, band *types.Band, sections []*store.S
 			</div>
 		</div>
 
-		<!-- Song Sections -->
-		@SongSections(sections, song.ID)
+		<!-- Song Content -->
+		@SongContent(song)
+	</div>
+
+	<script>
+		function handleAISuccess(event) {
+			// Show success notification
+			showNotification('Contenido generado exitosamente con IA!', 'success');
+			
+			// The page will be redirected by the server response
+		}
+
+		function handleAIError(event) {
+			console.error('Error generating content:', event.detail);
+			showNotification('Error al generar contenido con IA. Por favor intenta de nuevo.', 'error');
+		}
+
+		function showNotification(message, type) {
+			// Create notification element
+			const notification = document.createElement('div');
+			notification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+				type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+			}`;
+			notification.textContent = message;
+			
+			// Add to page
+			document.body.appendChild(notification);
+			
+			// Remove after 3 seconds
+			setTimeout(() => {
+				notification.remove();
+			}, 3000);
+		}
+	</script>
+}
+
+templ SongContent(song *store.Song) {
+	<div id="song-content" class="mt-8" data-song-id={ song.ID }>
+		<div class="bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none">
+			<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<div class="flex justify-between items-center">
+					<div>
+						<h2 class="text-lg font-medium text-gray-900 dark:text-white">Contenido de la Canción</h2>
+						<p class="text-sm text-gray-500 dark:text-gray-400">Letras, acordes, notas y cualquier información relevante para la práctica</p>
+					</div>
+					if song.Content == "" {
+						<form 
+							method="POST" 
+							action={ "/api/songs/" + song.ID + "/generate-content" }
+							x-data="{ isGenerating: false }"
+							x-target="song-content"
+							@submit="isGenerating = true"
+							@ajax:before="isGenerating = true"
+							@ajax:after="isGenerating = false"
+							@ajax:success="handleAISuccess"
+							@ajax:error="handleAIError"
+						>
+							<button 
+								type="submit" 
+								:disabled="isGenerating"
+								class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								<svg 
+									:class="isGenerating ? 'animate-spin' : ''"
+									class="-ml-1 mr-2 h-4 w-4" 
+									fill="none" 
+									viewBox="0 0 24 24" 
+									stroke="currentColor"
+								>
+									<path 
+										v-if="!isGenerating"
+										stroke-linecap="round" 
+										stroke-linejoin="round" 
+										stroke-width="2" 
+										d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+									></path>
+									<path 
+										v-if="isGenerating"
+										stroke-linecap="round" 
+										stroke-linejoin="round" 
+										stroke-width="2" 
+										d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+									></path>
+								</svg>
+								<span x-text="isGenerating ? 'Generando...' : 'Generar con IA'"></span>
+							</button>
+						</form>
+					}
+				</div>
+			</div>
+			<div class="p-6">
+				if song.Content == "" {
+					<div class="text-center py-8">
+						<svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+						</svg>
+						<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">No hay contenido aún</p>
+						<p class="text-xs text-gray-400 dark:text-gray-500">Usa IA para generar contenido o edita la canción para agregar letras, acordes y notas</p>
+					</div>
+				} else {
+					<div class="prose prose-sm max-w-none dark:prose-invert">
+						@templ.Raw(song.Content)
+					</div>
+				}
+			</div>
+		</div>
 	</div>
 }

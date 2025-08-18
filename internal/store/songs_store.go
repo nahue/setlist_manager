@@ -25,6 +25,7 @@ type Song struct {
 	Key       string    `json:"key"`
 	Tempo     *int      `json:"tempo,omitempty"`
 	Notes     string    `json:"notes"`
+	Content   string    `json:"content"`
 	Position  int       `json:"position"`
 	CreatedBy string    `json:"created_by"`
 	CreatedAt time.Time `json:"created_at"`
@@ -34,7 +35,7 @@ type Song struct {
 }
 
 // CreateSong creates a new song
-func (d *SQLiteSongsStore) CreateSong(bandID, title, artist, key, notes, createdBy string, tempo *int) (*Song, error) {
+func (d *SQLiteSongsStore) CreateSong(bandID, title, artist, key, notes, content, createdBy string, tempo *int) (*Song, error) {
 	songID := generateUUID()
 
 	// Get the next position for this band
@@ -45,8 +46,8 @@ func (d *SQLiteSongsStore) CreateSong(bandID, title, artist, key, notes, created
 	}
 	nextPosition := maxPosition + 1
 
-	query := `INSERT INTO songs (id, band_id, title, artist, key, tempo, notes, created_by, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err = d.db.Exec(query, songID, bandID, title, artist, key, tempo, notes, createdBy, nextPosition)
+	query := `INSERT INTO songs (id, band_id, title, artist, key, tempo, notes, content, created_by, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err = d.db.Exec(query, songID, bandID, title, artist, key, tempo, notes, content, createdBy, nextPosition)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create song: %w", err)
 	}
@@ -59,6 +60,7 @@ func (d *SQLiteSongsStore) CreateSong(bandID, title, artist, key, notes, created
 		Key:       key,
 		Tempo:     tempo,
 		Notes:     notes,
+		Content:   content,
 		Position:  nextPosition,
 		CreatedBy: createdBy,
 		CreatedAt: time.Now(),
@@ -70,7 +72,7 @@ func (d *SQLiteSongsStore) CreateSong(bandID, title, artist, key, notes, created
 // GetSongsByBand gets all songs for a band
 func (d *SQLiteSongsStore) GetSongsByBand(bandID string) ([]*Song, error) {
 	query := `
-		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.position, s.created_by, s.created_at, s.updated_at, s.is_active,
+		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.content, s.position, s.created_by, s.created_at, s.updated_at, s.is_active,
 		       u.id, u.email, u.created_at, u.last_login, u.is_active
 		FROM songs s
 		INNER JOIN users u ON s.created_by = u.id
@@ -90,6 +92,7 @@ func (d *SQLiteSongsStore) GetSongsByBand(bandID string) ([]*Song, error) {
 		var user User
 		var lastLogin sql.NullTime
 		var tempo sql.NullInt32
+		var content sql.NullString
 
 		err := rows.Scan(
 			&song.ID,
@@ -99,6 +102,7 @@ func (d *SQLiteSongsStore) GetSongsByBand(bandID string) ([]*Song, error) {
 			&song.Key,
 			&tempo,
 			&song.Notes,
+			&content,
 			&song.Position,
 			&song.CreatedBy,
 			&song.CreatedAt,
@@ -121,6 +125,9 @@ func (d *SQLiteSongsStore) GetSongsByBand(bandID string) ([]*Song, error) {
 			tempoInt := int(tempo.Int32)
 			song.Tempo = &tempoInt
 		}
+		if content.Valid {
+			song.Content = content.String
+		}
 
 		song.User = &user
 		songs = append(songs, &song)
@@ -132,13 +139,14 @@ func (d *SQLiteSongsStore) GetSongsByBand(bandID string) ([]*Song, error) {
 // GetSongByID gets a song by ID
 func (d *SQLiteSongsStore) GetSongByID(songID string) (*Song, error) {
 	query := `
-		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.created_by, s.created_at, s.updated_at, s.is_active
+		SELECT s.id, s.band_id, s.title, s.artist, s.key, s.tempo, s.notes, s.content, s.position, s.created_by, s.created_at, s.updated_at, s.is_active
 		FROM songs s
 		WHERE s.id = ? AND s.is_active = 1
 	`
 
 	var song Song
 	var tempo sql.NullInt32
+	var content sql.NullString
 
 	err := d.db.QueryRow(query, songID).Scan(
 		&song.ID,
@@ -148,6 +156,8 @@ func (d *SQLiteSongsStore) GetSongByID(songID string) (*Song, error) {
 		&song.Key,
 		&tempo,
 		&song.Notes,
+		&content,
+		&song.Position,
 		&song.CreatedBy,
 		&song.CreatedAt,
 		&song.UpdatedAt,
@@ -165,14 +175,17 @@ func (d *SQLiteSongsStore) GetSongByID(songID string) (*Song, error) {
 		tempoInt := int(tempo.Int32)
 		song.Tempo = &tempoInt
 	}
+	if content.Valid {
+		song.Content = content.String
+	}
 
 	return &song, nil
 }
 
 // UpdateSong updates a song
-func (d *SQLiteSongsStore) UpdateSong(songID, title, artist, key, notes string, tempo *int) error {
-	query := `UPDATE songs SET title = ?, artist = ?, key = ?, tempo = ?, notes = ?, updated_at = ? WHERE id = ?`
-	_, err := d.db.Exec(query, title, artist, key, tempo, notes, time.Now(), songID)
+func (d *SQLiteSongsStore) UpdateSong(songID, title, artist, key, notes, content string, tempo *int) error {
+	query := `UPDATE songs SET title = ?, artist = ?, key = ?, tempo = ?, notes = ?, content = ?, updated_at = ? WHERE id = ?`
+	_, err := d.db.Exec(query, title, artist, key, tempo, notes, content, time.Now(), songID)
 	if err != nil {
 		return fmt.Errorf("failed to update song: %w", err)
 	}

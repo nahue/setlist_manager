@@ -17,21 +17,21 @@ import (
 type SongHandler struct {
 	songsDB         *store.SQLiteSongsStore
 	bandsDB         *store.SQLiteBandsStore
-	sectionsDB      *store.SQLiteSongSectionsStore
 	authService     *services.AuthService
 	authStore       *store.SQLiteAuthStore
 	markdownService *services.MarkdownService
+	aiService       *services.AIService
 }
 
 // NewHandler creates a new songs handler
-func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, sectionsDB *store.SQLiteSongSectionsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService) *SongHandler {
+func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService, aiService *services.AIService) *SongHandler {
 	return &SongHandler{
 		songsDB:         songsDB,
 		bandsDB:         bandsDB,
-		sectionsDB:      sectionsDB,
 		authService:     authService,
 		authStore:       authStore,
 		markdownService: markdownService,
+		aiService:       aiService,
 	}
 }
 
@@ -138,6 +138,7 @@ func (h *SongHandler) CreateSong(w http.ResponseWriter, r *http.Request) {
 	key := r.FormValue("key")
 	tempoStr := r.FormValue("tempo")
 	notes := r.FormValue("notes")
+	content := r.FormValue("content")
 
 	if title == "" {
 		http.Error(w, "Song title is required", http.StatusBadRequest)
@@ -153,7 +154,7 @@ func (h *SongHandler) CreateSong(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create song
-	_, err = h.songsDB.CreateSong(bandID, title, artist, key, notes, user.ID, tempo)
+	_, err = h.songsDB.CreateSong(bandID, title, artist, key, notes, content, user.ID, tempo)
 	if err != nil {
 		log.Printf("Error creating song: %v", err)
 		// Return HTML error response
@@ -331,20 +332,15 @@ func (h *SongHandler) ServeSongDetails(w http.ResponseWriter, r *http.Request) {
 		IsActive:    band.IsActive,
 	}
 
-	// Get song sections
-	sections, err := h.sectionsDB.GetSongSectionsBySongID(songID)
-	if err != nil {
-		log.Printf("Error getting song sections: %v", err)
-		// Continue without sections if there's an error
-		sections = []*store.SongSection{}
+	// Process song content to convert markdown to HTML
+	if song.Content != "" {
+		htmlContent := h.markdownService.ParseMarkdown(song.Content)
+		song.Content = string(htmlContent)
 	}
-
-	// Process sections to convert markdown to HTML
-	processedSections := h.processSectionsForRendering(sections)
 
 	// Render the song details page
 	w.Header().Set("Content-Type", "text/html")
-	err = templates.SongDetailsPage(song, bandType, processedSections, user).Render(r.Context(), w)
+	err = templates.SongDetailsPage(song, bandType, user).Render(r.Context(), w)
 	if err != nil {
 		log.Printf("Error rendering song details page: %v", err)
 		http.Error(w, "Failed to render song details page", http.StatusInternalServerError)
@@ -484,6 +480,7 @@ func (h *SongHandler) EditSong(w http.ResponseWriter, r *http.Request) {
 	key := r.FormValue("key")
 	tempoStr := r.FormValue("tempo")
 	notes := r.FormValue("notes")
+	content := r.FormValue("content")
 
 	if title == "" {
 		http.Error(w, "Song title is required", http.StatusBadRequest)
@@ -499,7 +496,7 @@ func (h *SongHandler) EditSong(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update song
-	err = h.songsDB.UpdateSong(songID, title, artist, key, notes, tempo)
+	err = h.songsDB.UpdateSong(songID, title, artist, key, notes, content, tempo)
 	if err != nil {
 		log.Printf("Error updating song: %v", err)
 		// Return HTML error response
@@ -588,23 +585,90 @@ func (h *SongHandler) ServeEditSong(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// processSectionsForRendering converts markdown content to HTML for all sections
-func (h *SongHandler) processSectionsForRendering(sections []*store.SongSection) []*store.SongSection {
-	processedSections := make([]*store.SongSection, len(sections))
+// GenerateSongContent handles POST /api/songs/{songID}/generate-content
+func (h *SongHandler) GenerateSongContent(w http.ResponseWriter, r *http.Request) {
+	// Extract song ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+	songID := pathParts[3]
 
-	for i, section := range sections {
-		// Create a copy of the section
-		processedSection := *section
-
-		// Convert markdown body to HTML
-		if section.Body != "" {
-			htmlContent := h.markdownService.ParseMarkdown(section.Body)
-			// Convert template.HTML to string for storage in the struct
-			processedSection.Body = string(htmlContent)
-		}
-
-		processedSections[i] = &processedSection
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
 	}
 
-	return processedSections
+	// Get song to check band membership
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Generate content using AI service
+	aiReq := &services.SongContentRequest{
+		SongTitle: song.Title,
+		Artist:    song.Artist,
+		Key:       song.Key,
+		Tempo:     song.Tempo,
+	}
+
+	aiResponse, err := h.aiService.GenerateSongContent(aiReq)
+	if err != nil {
+		log.Printf("Error generating song content: %v", err)
+		http.Error(w, "Failed to generate song content", http.StatusInternalServerError)
+		return
+	}
+
+	// Update the song with the generated content
+	err = h.songsDB.UpdateSong(songID, song.Title, song.Artist, song.Key, song.Notes, aiResponse.Content, song.Tempo)
+	if err != nil {
+		log.Printf("Error updating song with generated content: %v", err)
+		http.Error(w, "Failed to update song with generated content", http.StatusInternalServerError)
+		return
+	}
+
+	// Get the updated song with processed content
+	updatedSong, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting updated song: %v", err)
+		http.Error(w, "Failed to get updated song", http.StatusInternalServerError)
+		return
+	}
+
+	// Process song content to convert markdown to HTML
+	if updatedSong.Content != "" {
+		htmlContent := h.markdownService.ParseMarkdown(updatedSong.Content)
+		updatedSong.Content = string(htmlContent)
+	}
+
+	// Return HTML response with the updated song content
+	w.Header().Set("Content-Type", "text/html")
+	err = templates.SongContent(updatedSong).Render(r.Context(), w)
+	if err != nil {
+		log.Printf("Error rendering song content: %v", err)
+		http.Error(w, "Failed to render song content", http.StatusInternalServerError)
+		return
+	}
 }

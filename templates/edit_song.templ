@@ -94,6 +94,35 @@ templ EditSongContent(song *store.Song, band *types.Band) {
 							</div>
 							<p class="mt-3 text-sm/6 text-gray-600">Información adicional sobre la canción, acordes, letra, etc.</p>
 						</div>
+
+						<div class="col-span-full">
+							<label for="content" class="block text-sm/6 font-medium text-gray-900">Contenido de la Canción</label>
+							<div class="mt-2">
+								<div class="mt-1">
+									<div class="flex space-x-1 border-b border-gray-300">
+										<button type="button" class="tab-button border-b-2 border-indigo-500 text-indigo-600 px-3 py-2 text-sm font-medium" data-tab="edit">
+											Editar
+										</button>
+										<button type="button" class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" data-tab="preview">
+											Vista Previa
+										</button>
+									</div>
+									
+									<div class="tab-content active" data-tab="edit">
+										<textarea name="content" id="content" rows="12"
+											class="markdown-editor block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+											placeholder="Escribe aquí el contenido de la canción usando Markdown...&#10;&#10;Ejemplos:&#10;# Título&#10;## Sección&#10;**Negrita** o *cursiva*&#10;- Lista&#10;1. Lista numerada">{ song.Content }</textarea>
+									</div>
+									
+									<div class="tab-content hidden" data-tab="preview">
+										<div class="markdown-preview block w-full rounded-md bg-gray-50 px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 sm:text-sm/6 min-h-[200px]">
+											<div class="text-gray-500 italic">Vista previa aparecerá aquí...</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<p class="mt-3 text-sm/6 text-gray-600">Letras, acordes, notas y cualquier información relevante para la práctica. Soporta Markdown para formato.</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -108,4 +137,109 @@ templ EditSongContent(song *store.Song, band *types.Band) {
 			</div>
 		</form>
 	</div>
+
+	<script>
+		// Tab functionality
+		document.addEventListener('DOMContentLoaded', function() {
+			// Initialize tabs
+			initializeTabs();
+			
+			// Initialize markdown preview
+			initializeMarkdownPreview();
+		});
+
+		function initializeTabs() {
+			document.querySelectorAll('.tab-button').forEach(button => {
+				button.addEventListener('click', function() {
+					const tabName = this.getAttribute('data-tab');
+					const tabContainer = this.closest('.mt-1');
+					
+					// Update button states
+					tabContainer.querySelectorAll('.tab-button').forEach(btn => {
+						btn.classList.remove('border-indigo-500', 'text-indigo-600');
+						btn.classList.add('border-transparent', 'text-gray-500');
+					});
+					this.classList.remove('border-transparent', 'text-gray-500');
+					this.classList.add('border-indigo-500', 'text-indigo-600');
+					
+					// Update tab content visibility
+					tabContainer.querySelectorAll('.tab-content').forEach(content => {
+						if (content.getAttribute('data-tab') === tabName) {
+							content.classList.remove('hidden');
+							content.classList.add('active');
+						} else {
+							content.classList.add('hidden');
+							content.classList.remove('active');
+						}
+					});
+					
+					// Update preview if switching to preview tab
+					if (tabName === 'preview') {
+						updateMarkdownPreview(tabContainer);
+					}
+				});
+			});
+		}
+
+		function initializeMarkdownPreview() {
+			document.querySelectorAll('.markdown-editor').forEach(textarea => {
+				textarea.addEventListener('input', function() {
+					const tabContainer = this.closest('.mt-1');
+					const previewTab = tabContainer.querySelector('[data-tab="preview"]');
+					if (previewTab && !previewTab.classList.contains('hidden')) {
+						updateMarkdownPreview(tabContainer);
+					}
+				});
+			});
+		}
+
+		function updateMarkdownPreview(tabContainer) {
+			const textarea = tabContainer.querySelector('.markdown-editor');
+			const preview = tabContainer.querySelector('.markdown-preview');
+			
+			if (textarea && preview) {
+				const markdownText = textarea.value;
+				if (markdownText.trim() === '') {
+					preview.innerHTML = '<div class="text-gray-500 italic">Vista previa aparecerá aquí...</div>';
+				} else {
+					// Use marked library for proper markdown parsing
+					try {
+						// Configure marked options
+						marked.setOptions({
+							breaks: true, // Convert line breaks to <br>
+							gfm: true,    // GitHub Flavored Markdown
+							headerIds: false, // Disable header IDs for security
+							mangle: false,    // Disable mangling
+							sanitize: false   // We'll handle sanitization with DOMPurify if needed
+						});
+						
+						// Parse markdown to HTML
+						const html = marked.parse(markdownText);
+						
+						// Apply custom styling classes
+						let styledHtml = html
+							// Add Tailwind classes to headers
+							.replace(/<h1>/g, '<h1 class="text-2xl font-bold mt-4 mb-3 text-gray-900">')
+							.replace(/<h2>/g, '<h2 class="text-xl font-semibold mt-3 mb-2 text-gray-900">')
+							.replace(/<h3>/g, '<h3 class="text-lg font-semibold mt-2 mb-1 text-gray-900">')
+							// Add Tailwind classes to links
+							.replace(/<a /g, '<a class="text-indigo-600 hover:text-indigo-800 underline" target="_blank" ')
+							// Add Tailwind classes to lists
+							.replace(/<ul>/g, '<ul class="list-disc ml-4 mb-2 text-gray-900">')
+							.replace(/<ol>/g, '<ol class="list-decimal ml-4 mb-2 text-gray-900">')
+							// Add Tailwind classes to code blocks
+							.replace(/<code>/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-900">')
+							.replace(/<pre>/g, '<pre class="bg-gray-100 p-3 rounded text-sm font-mono overflow-x-auto text-gray-900">')
+							// Add Tailwind classes to blockquotes
+							.replace(/<blockquote>/g, '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-900">');
+						
+						preview.innerHTML = styledHtml;
+					} catch (error) {
+						console.error('Error parsing markdown:', error);
+						preview.innerHTML = '<div class="text-red-500">Error parsing markdown</div>';
+					}
+				}
+			}
+		}
+	</script>
 }

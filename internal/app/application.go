@@ -16,13 +16,12 @@ import (
 
 // Application represents the main application
 type Application struct {
-	router          *chi.Mux
-	authService     *services.AuthService
-	authHandler     *api.AuthHandler
-	bandsHandler    *api.BandHandler
-	songsHandler    *api.SongHandler
-	sectionsHandler *api.SongSectionsHandler
-	healthHandler   *api.HealthHandler
+	router        *chi.Mux
+	authService   *services.AuthService
+	authHandler   *api.AuthHandler
+	bandsHandler  *api.BandHandler
+	songsHandler  *api.SongHandler
+	healthHandler *api.HealthHandler
 }
 
 // NewApplication creates a new application instance
@@ -31,7 +30,6 @@ func NewApplication(
 	authStore *store.SQLiteAuthStore,
 	bandsStore *store.SQLiteBandsStore,
 	songsStore *store.SQLiteSongsStore,
-	sectionsStore *store.SQLiteSongSectionsStore,
 ) *Application {
 	// Initialize services
 	authService := services.NewAuthService(authStore)
@@ -41,21 +39,19 @@ func NewApplication(
 	// Initialize handlers
 	authHandler := api.NewAuthHandler(authStore, bandsStore)
 	bandsHandler := api.NewBandHandler(bandsStore, songsStore, authService)
-	songsHandler := api.NewSongHandler(songsStore, bandsStore, sectionsStore, authService, authStore, markdownService)
-	sectionsHandler := api.NewSongSectionsHandler(sectionsStore, songsStore, bandsStore, authService, authStore, markdownService, aiService)
+	songsHandler := api.NewSongHandler(songsStore, bandsStore, authService, authStore, markdownService, aiService)
 	healthHandler := api.NewHealthHandler(db)
 
 	// Initialize router
 	router := chi.NewRouter()
 
 	app := &Application{
-		router:          router,
-		authService:     authService,
-		authHandler:     authHandler,
-		bandsHandler:    bandsHandler,
-		songsHandler:    songsHandler,
-		sectionsHandler: sectionsHandler,
-		healthHandler:   healthHandler,
+		router:        router,
+		authService:   authService,
+		authHandler:   authHandler,
+		bandsHandler:  bandsHandler,
+		songsHandler:  songsHandler,
+		healthHandler: healthHandler,
 	}
 
 	app.setupMiddleware()
@@ -121,13 +117,7 @@ func (app *Application) setupRoutes() {
 		r.Post("/api/bands/songs/{songID}", app.songsHandler.EditSong)
 		r.Post("/api/bands/songs/reorder", app.songsHandler.ReorderSongs)
 		r.Delete("/api/bands/songs/{songID}", app.songsHandler.DeleteSong)
-
-		// Song Sections API routes
-		r.Get("/api/songs/{songID}/sections", app.sectionsHandler.GetSongSections)
-		r.Post("/api/songs/{songID}/sections", app.sectionsHandler.CreateSongSection)
-		r.Post("/api/songs/{songID}/sections/generate-ai", app.sectionsHandler.GenerateAISongSections)
-		r.Post("/api/songs/{songID}/sections/reorder", app.sectionsHandler.ReorderSongSections)
-		r.Delete("/api/songs/{songID}/sections/{sectionID}", app.sectionsHandler.DeleteSongSection)
+		r.Post("/api/songs/{songID}/generate-content", app.songsHandler.GenerateSongContent)
 
 		// Invitation routes
 		r.Get("/api/invitations", app.bandsHandler.GetInvitations)
