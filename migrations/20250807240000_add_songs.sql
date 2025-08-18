@@ -7,6 +7,8 @@ CREATE TABLE songs (
     key TEXT,
     tempo INTEGER,
     notes TEXT,
+    content TEXT,
+    position INTEGER DEFAULT 0,
     created_by TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -21,12 +23,14 @@ CREATE INDEX idx_songs_created_by ON songs(created_by);
 CREATE INDEX idx_songs_is_active ON songs(is_active);
 CREATE INDEX idx_songs_title ON songs(title);
 CREATE INDEX idx_songs_artist ON songs(artist);
+CREATE INDEX idx_songs_position ON songs(band_id, position);
 
 -- +goose Down
+DROP INDEX IF EXISTS idx_songs_position;
 DROP INDEX IF EXISTS idx_songs_artist;
 DROP INDEX IF EXISTS idx_songs_title;
 DROP INDEX IF EXISTS idx_songs_is_active;
 DROP INDEX IF EXISTS idx_songs_created_by;
 DROP INDEX IF EXISTS idx_songs_band_id;
-
 DROP TABLE IF EXISTS songs;
+
