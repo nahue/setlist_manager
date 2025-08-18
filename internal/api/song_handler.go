@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,10 +22,11 @@ type SongHandler struct {
 	authStore       *store.SQLiteAuthStore
 	markdownService *services.MarkdownService
 	aiService       *services.AIService
+	pdfService      *services.PDFService
 }
 
 // NewHandler creates a new songs handler
-func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService, aiService *services.AIService) *SongHandler {
+func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsStore, authService *services.AuthService, authStore *store.SQLiteAuthStore, markdownService *services.MarkdownService, aiService *services.AIService, pdfService *services.PDFService) *SongHandler {
 	return &SongHandler{
 		songsDB:         songsDB,
 		bandsDB:         bandsDB,
@@ -32,6 +34,7 @@ func NewSongHandler(songsDB *store.SQLiteSongsStore, bandsDB *store.SQLiteBandsS
 		authStore:       authStore,
 		markdownService: markdownService,
 		aiService:       aiService,
+		pdfService:      pdfService,
 	}
 }
 
@@ -669,6 +672,86 @@ func (h *SongHandler) ServeEditSong(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to render edit song page", http.StatusInternalServerError)
 		return
 	}
+}
+
+// ExportSongPDF handles GET /api/songs/{songID}/export-pdf
+func (h *SongHandler) ExportSongPDF(w http.ResponseWriter, r *http.Request) {
+	// Extract song ID from URL path
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) < 5 {
+		http.Error(w, "Song ID is required", http.StatusBadRequest)
+		return
+	}
+	songID := pathParts[3]
+
+	// Get current user from session
+	user := h.authService.GetCurrentUser(r)
+	if user == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Get song to check band membership
+	song, err := h.songsDB.GetSongByID(songID)
+	if err != nil {
+		log.Printf("Error getting song: %v", err)
+		http.Error(w, "Failed to get song", http.StatusInternalServerError)
+		return
+	}
+	if song == nil {
+		http.Error(w, "Song not found", http.StatusNotFound)
+		return
+	}
+
+	// Check if user is a member of the band
+	member, err := h.bandsDB.GetBandMember(song.BandID, user.ID)
+	if err != nil {
+		log.Printf("Error checking band membership: %v", err)
+		http.Error(w, "Failed to check band membership", http.StatusInternalServerError)
+		return
+	}
+	if member == nil {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Get band details for the PDF (for future use)
+	_, err = h.bandsDB.GetBandByID(song.BandID)
+	if err != nil {
+		log.Printf("Error getting band: %v", err)
+		http.Error(w, "Failed to get band", http.StatusInternalServerError)
+		return
+	}
+
+	// Create PDF request with original markdown content
+	pdfReq := &services.SongContentPDFRequest{
+		SongTitle: song.Title,
+		Artist:    song.Artist,
+		Key:       song.Key,
+		Tempo:     song.Tempo,
+		Content:   song.Content, // This is the original markdown content from the database
+	}
+
+	// Generate PDF
+	pdfBytes, err := h.pdfService.GenerateSongPDF(pdfReq)
+	if err != nil {
+		log.Printf("Error generating PDF: %v", err)
+		http.Error(w, "Failed to generate PDF", http.StatusInternalServerError)
+		return
+	}
+
+	// Set response headers for PDF download
+	filename := fmt.Sprintf("%s - %s.pdf", song.Title, song.Artist)
+	if filename == " - .pdf" {
+		filename = fmt.Sprintf("song_%s.pdf", songID)
+	}
+
+	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(pdfBytes)))
+
+	// Write PDF content
+	w.Write(pdfBytes)
 }
 
 // GenerateSongContent handles POST /api/songs/{songID}/generate-content

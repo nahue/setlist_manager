@@ -35,11 +35,12 @@ func NewApplication(
 	authService := services.NewAuthService(authStore)
 	markdownService := services.NewMarkdownService()
 	aiService := services.NewAIService()
+	pdfService := services.NewPDFService()
 
 	// Initialize handlers
 	authHandler := api.NewAuthHandler(authStore, bandsStore)
 	bandsHandler := api.NewBandHandler(bandsStore, songsStore, authService)
-	songsHandler := api.NewSongHandler(songsStore, bandsStore, authService, authStore, markdownService, aiService)
+	songsHandler := api.NewSongHandler(songsStore, bandsStore, authService, authStore, markdownService, aiService, pdfService)
 	healthHandler := api.NewHealthHandler(db)
 
 	// Initialize router
@@ -119,6 +120,7 @@ func (app *Application) setupRoutes() {
 		r.Delete("/api/bands/songs/{songID}", app.songsHandler.DeleteSong)
 		r.Post("/api/songs/{songID}/generate-content", app.songsHandler.GenerateSongContent)
 		r.Post("/api/songs/{songID}/update-content", app.songsHandler.UpdateSongContent)
+		r.Get("/api/songs/{songID}/export-pdf", app.songsHandler.ExportSongPDF)
 
 		// Invitation routes
 		r.Get("/api/invitations", app.bandsHandler.GetInvitations)

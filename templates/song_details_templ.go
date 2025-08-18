@@ -350,33 +350,56 @@ func SongDetailsContent(song *store.Song, band *types.Band, originalMarkdown str
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Actions --><div class=\"mt-8 pt-6 border-t border-gray-200 dark:border-gray-700\"><div class=\"flex justify-end space-x-3\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Actions --><div class=\"mt-8 pt-6 border-t border-gray-200 dark:border-gray-700\"><div class=\"flex justify-end space-x-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var19 templ.SafeURL
-		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs("/song/edit?id=" + song.ID)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 137, Col: 42}
+		if song.Content != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<a href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 templ.SafeURL
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + song.ID + "/export-pdf")
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 138, Col: 56}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\"></path></svg> Exportar PDF</a> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\"></path></svg> Editar Canción</a><form method=\"delete\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var20 templ.SafeURL
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs("/song/edit?id=" + song.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 143, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 145, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" x-target=\"body\" @ajax:before=\"confirm('¿Estás seguro de que quieres eliminar esta canción?') || $event.preventDefault()\"><button type=\"submit\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16\"></path></svg> Eliminar Canción</button></form></div></div></div></div><!-- Song Content -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\"></path></svg> Editar Canción</a><form method=\"delete\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 templ.SafeURL
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs("/api/bands/songs/" + song.ID)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 151, Col: 66}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" x-target=\"body\" @ajax:before=\"confirm('¿Estás seguro de que quieres eliminar esta canción?') || $event.preventDefault()\"><button type=\"submit\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16\"></path></svg> Eliminar Canción</button></form></div></div></div></div><!-- Song Content -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -384,7 +407,7 @@ func SongDetailsContent(song *store.Song, band *types.Band, originalMarkdown str
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div><script>\n\t\tfunction handleAISuccess(event) {\n\t\t\t// Show success notification\n\t\t\tshowNotification('Contenido generado exitosamente con IA!', 'success');\n\t\t\t\n\t\t\t// The page will be redirected by the server response\n\t\t}\n\n\t\tfunction handleAIError(event) {\n\t\t\tconsole.error('Error generating content:', event.detail);\n\t\t\tshowNotification('Error al generar contenido con IA. Por favor intenta de nuevo.', 'error');\n\t\t}\n\n\t\tfunction handleContentSaveSuccess(event) {\n\t\t\t// Show success notification\n\t\t\tshowNotification('Contenido guardado exitosamente!', 'success');\n\t\t\t\n\t\t\t// Exit edit mode\n\t\t\tconst songContent = document.getElementById('song-content');\n\t\t\tif (songContent && songContent._x_dataStack && songContent._x_dataStack[0]) {\n\t\t\t\tsongContent._x_dataStack[0].editContent = false;\n\t\t\t}\n\t\t}\n\n\t\tfunction handleContentSaveError(event) {\n\t\t\tconsole.error('Error saving content:', event.detail);\n\t\t\tshowNotification('Error al guardar contenido. Por favor intenta de nuevo.', 'error');\n\t\t}\n\n\t\tfunction showNotification(message, type) {\n\t\t\t// Create notification element\n\t\t\tconst notification = document.createElement('div');\n\t\t\tnotification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${\n\t\t\t\ttype === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'\n\t\t\t}`;\n\t\t\tnotification.textContent = message;\n\t\t\t\n\t\t\t// Add to page\n\t\t\tdocument.body.appendChild(notification);\n\t\t\t\n\t\t\t// Remove after 3 seconds\n\t\t\tsetTimeout(() => {\n\t\t\t\tnotification.remove();\n\t\t\t}, 3000);\n\t\t}\n\n\t\t// Initialize markdown preview functionality\n\t\tdocument.addEventListener('DOMContentLoaded', function() {\n\t\t\t// Initialize tabs\n\t\t\tinitializeTabs();\n\t\t\t\n\t\t\t// Initialize markdown preview\n\t\t\tinitializeMarkdownPreview();\n\t\t});\n\n\t\tfunction initializeTabs() {\n\t\t\tdocument.querySelectorAll('.tab-button').forEach(button => {\n\t\t\t\tbutton.addEventListener('click', function() {\n\t\t\t\t\tconst tabName = this.getAttribute('data-tab');\n\t\t\t\t\tconst tabContainer = this.closest('.space-y-4');\n\t\t\t\t\t\n\t\t\t\t\t// Update button states\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-button').forEach(btn => {\n\t\t\t\t\t\tbtn.classList.remove('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\tbtn.classList.add('border-transparent', 'text-gray-500');\n\t\t\t\t\t});\n\t\t\t\t\tthis.classList.remove('border-transparent', 'text-gray-500');\n\t\t\t\t\tthis.classList.add('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\n\t\t\t\t\t// Update tab content visibility\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-content').forEach(content => {\n\t\t\t\t\t\tif (content.getAttribute('data-tab') === tabName) {\n\t\t\t\t\t\t\tcontent.classList.remove('hidden');\n\t\t\t\t\t\t\tcontent.classList.add('active');\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tcontent.classList.add('hidden');\n\t\t\t\t\t\t\tcontent.classList.remove('active');\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t\t\n\t\t\t\t\t// Update preview if switching to preview tab\n\t\t\t\t\tif (tabName === 'preview') {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction initializeMarkdownPreview() {\n\t\t\tdocument.querySelectorAll('.markdown-editor').forEach(textarea => {\n\t\t\t\ttextarea.addEventListener('input', function() {\n\t\t\t\t\tconst tabContainer = this.closest('.space-y-4');\n\t\t\t\t\tconst previewTab = tabContainer.querySelector('[data-tab=\"preview\"]');\n\t\t\t\t\tif (previewTab && !previewTab.classList.contains('hidden')) {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction updateMarkdownPreview(tabContainer) {\n\t\t\tconst textarea = tabContainer.querySelector('.markdown-editor');\n\t\t\tconst preview = tabContainer.querySelector('.markdown-preview');\n\t\t\t\n\t\t\tif (textarea && preview) {\n\t\t\t\tconst markdownText = textarea.value;\n\t\t\t\tif (markdownText.trim() === '') {\n\t\t\t\t\tpreview.innerHTML = '<div class=\"text-gray-500 dark:text-gray-400 italic\">Vista previa aparecerá aquí...</div>';\n\t\t\t\t} else {\n\t\t\t\t\t// Use marked library for proper markdown parsing\n\t\t\t\t\ttry {\n\t\t\t\t\t\t// Configure marked options\n\t\t\t\t\t\tmarked.setOptions({\n\t\t\t\t\t\t\tbreaks: true, // Convert line breaks to <br>\n\t\t\t\t\t\t\tgfm: true,    // GitHub Flavored Markdown\n\t\t\t\t\t\t\theaderIds: false, // Disable header IDs for security\n\t\t\t\t\t\t\tmangle: false,    // Disable mangling\n\t\t\t\t\t\t\tsanitize: false   // We'll handle sanitization with DOMPurify if needed\n\t\t\t\t\t\t});\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Parse markdown to HTML\n\t\t\t\t\t\tconst html = marked.parse(markdownText);\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Apply custom styling classes\n\t\t\t\t\t\tlet styledHtml = html\n\t\t\t\t\t\t\t// Add Tailwind classes to headers\n\t\t\t\t\t\t\t.replace(/<h1>/g, '<h1 class=\"text-2xl font-bold mt-4 mb-3 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<h2>/g, '<h2 class=\"text-xl font-semibold mt-3 mb-2 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<h3>/g, '<h3 class=\"text-lg font-semibold mt-2 mb-1 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to links\n\t\t\t\t\t\t\t.replace(/<a /g, '<a class=\"text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 underline\" target=\"_blank\" ')\n\t\t\t\t\t\t\t// Add Tailwind classes to lists\n\t\t\t\t\t\t\t.replace(/<ul>/g, '<ul class=\"list-disc ml-4 mb-2 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<ol>/g, '<ol class=\"list-decimal ml-4 mb-2 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to code blocks\n\t\t\t\t\t\t\t.replace(/<code>/g, '<code class=\"bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded text-sm font-mono text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<pre>/g, '<pre class=\"bg-gray-100 dark:bg-gray-600 p-3 rounded text-sm font-mono overflow-x-auto text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to blockquotes\n\t\t\t\t\t\t\t.replace(/<blockquote>/g, '<blockquote class=\"border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-900 dark:text-white\">');\n\t\t\t\t\t\t\n\t\t\t\t\t\tpreview.innerHTML = styledHtml;\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Error parsing markdown:', error);\n\t\t\t\t\t\tpreview.innerHTML = '<div class=\"text-red-500 dark:text-red-400\">Error parsing markdown</div>';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><script>\n\t\tfunction handleAISuccess(event) {\n\t\t\t// Show success notification\n\t\t\tshowNotification('Contenido generado exitosamente con IA!', 'success');\n\t\t\t\n\t\t\t// The page will be redirected by the server response\n\t\t}\n\n\t\tfunction handleAIError(event) {\n\t\t\tconsole.error('Error generating content:', event.detail);\n\t\t\tshowNotification('Error al generar contenido con IA. Por favor intenta de nuevo.', 'error');\n\t\t}\n\n\t\tfunction handleContentSaveSuccess(event) {\n\t\t\t// Show success notification\n\t\t\tshowNotification('Contenido guardado exitosamente!', 'success');\n\t\t\t\n\t\t\t// Exit edit mode\n\t\t\tconst songContent = document.getElementById('song-content');\n\t\t\tif (songContent && songContent._x_dataStack && songContent._x_dataStack[0]) {\n\t\t\t\tsongContent._x_dataStack[0].editContent = false;\n\t\t\t}\n\t\t}\n\n\t\tfunction handleContentSaveError(event) {\n\t\t\tconsole.error('Error saving content:', event.detail);\n\t\t\tshowNotification('Error al guardar contenido. Por favor intenta de nuevo.', 'error');\n\t\t}\n\n\t\tfunction showNotification(message, type) {\n\t\t\t// Create notification element\n\t\t\tconst notification = document.createElement('div');\n\t\t\tnotification.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${\n\t\t\t\ttype === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'\n\t\t\t}`;\n\t\t\tnotification.textContent = message;\n\t\t\t\n\t\t\t// Add to page\n\t\t\tdocument.body.appendChild(notification);\n\t\t\t\n\t\t\t// Remove after 3 seconds\n\t\t\tsetTimeout(() => {\n\t\t\t\tnotification.remove();\n\t\t\t}, 3000);\n\t\t}\n\n\t\t// Initialize markdown preview functionality\n\t\tdocument.addEventListener('DOMContentLoaded', function() {\n\t\t\t// Initialize tabs\n\t\t\tinitializeTabs();\n\t\t\t\n\t\t\t// Initialize markdown preview\n\t\t\tinitializeMarkdownPreview();\n\t\t});\n\n\t\tfunction initializeTabs() {\n\t\t\tdocument.querySelectorAll('.tab-button').forEach(button => {\n\t\t\t\tbutton.addEventListener('click', function() {\n\t\t\t\t\tconst tabName = this.getAttribute('data-tab');\n\t\t\t\t\tconst tabContainer = this.closest('.space-y-4');\n\t\t\t\t\t\n\t\t\t\t\t// Update button states\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-button').forEach(btn => {\n\t\t\t\t\t\tbtn.classList.remove('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\tbtn.classList.add('border-transparent', 'text-gray-500');\n\t\t\t\t\t});\n\t\t\t\t\tthis.classList.remove('border-transparent', 'text-gray-500');\n\t\t\t\t\tthis.classList.add('border-indigo-500', 'text-indigo-600');\n\t\t\t\t\t\n\t\t\t\t\t// Update tab content visibility\n\t\t\t\t\ttabContainer.querySelectorAll('.tab-content').forEach(content => {\n\t\t\t\t\t\tif (content.getAttribute('data-tab') === tabName) {\n\t\t\t\t\t\t\tcontent.classList.remove('hidden');\n\t\t\t\t\t\t\tcontent.classList.add('active');\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tcontent.classList.add('hidden');\n\t\t\t\t\t\t\tcontent.classList.remove('active');\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t\t\n\t\t\t\t\t// Update preview if switching to preview tab\n\t\t\t\t\tif (tabName === 'preview') {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction initializeMarkdownPreview() {\n\t\t\tdocument.querySelectorAll('.markdown-editor').forEach(textarea => {\n\t\t\t\ttextarea.addEventListener('input', function() {\n\t\t\t\t\tconst tabContainer = this.closest('.space-y-4');\n\t\t\t\t\tconst previewTab = tabContainer.querySelector('[data-tab=\"preview\"]');\n\t\t\t\t\tif (previewTab && !previewTab.classList.contains('hidden')) {\n\t\t\t\t\t\tupdateMarkdownPreview(tabContainer);\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t}\n\n\t\tfunction updateMarkdownPreview(tabContainer) {\n\t\t\tconst textarea = tabContainer.querySelector('.markdown-editor');\n\t\t\tconst preview = tabContainer.querySelector('.markdown-preview');\n\t\t\t\n\t\t\tif (textarea && preview) {\n\t\t\t\tconst markdownText = textarea.value;\n\t\t\t\tif (markdownText.trim() === '') {\n\t\t\t\t\tpreview.innerHTML = '<div class=\"text-gray-500 dark:text-gray-400 italic\">Vista previa aparecerá aquí...</div>';\n\t\t\t\t} else {\n\t\t\t\t\t// Use marked library for proper markdown parsing\n\t\t\t\t\ttry {\n\t\t\t\t\t\t// Configure marked options\n\t\t\t\t\t\tmarked.setOptions({\n\t\t\t\t\t\t\tbreaks: true, // Convert line breaks to <br>\n\t\t\t\t\t\t\tgfm: true,    // GitHub Flavored Markdown\n\t\t\t\t\t\t\theaderIds: false, // Disable header IDs for security\n\t\t\t\t\t\t\tmangle: false,    // Disable mangling\n\t\t\t\t\t\t\tsanitize: false   // We'll handle sanitization with DOMPurify if needed\n\t\t\t\t\t\t});\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Parse markdown to HTML\n\t\t\t\t\t\tconst html = marked.parse(markdownText);\n\t\t\t\t\t\t\n\t\t\t\t\t\t// Apply custom styling classes\n\t\t\t\t\t\tlet styledHtml = html\n\t\t\t\t\t\t\t// Add Tailwind classes to headers\n\t\t\t\t\t\t\t.replace(/<h1>/g, '<h1 class=\"text-2xl font-bold mt-4 mb-3 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<h2>/g, '<h2 class=\"text-xl font-semibold mt-3 mb-2 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<h3>/g, '<h3 class=\"text-lg font-semibold mt-2 mb-1 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to links\n\t\t\t\t\t\t\t.replace(/<a /g, '<a class=\"text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 underline\" target=\"_blank\" ')\n\t\t\t\t\t\t\t// Add Tailwind classes to lists\n\t\t\t\t\t\t\t.replace(/<ul>/g, '<ul class=\"list-disc ml-4 mb-2 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<ol>/g, '<ol class=\"list-decimal ml-4 mb-2 text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to code blocks\n\t\t\t\t\t\t\t.replace(/<code>/g, '<code class=\"bg-gray-100 dark:bg-gray-600 px-1 py-0.5 rounded text-sm font-mono text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t.replace(/<pre>/g, '<pre class=\"bg-gray-100 dark:bg-gray-600 p-3 rounded text-sm font-mono overflow-x-auto text-gray-900 dark:text-white\">')\n\t\t\t\t\t\t\t// Add Tailwind classes to blockquotes\n\t\t\t\t\t\t\t.replace(/<blockquote>/g, '<blockquote class=\"border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-900 dark:text-white\">');\n\t\t\t\t\t\t\n\t\t\t\t\t\tpreview.innerHTML = styledHtml;\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('Error parsing markdown:', error);\n\t\t\t\t\t\tpreview.innerHTML = '<div class=\"text-red-500 dark:text-red-400\">Error parsing markdown</div>';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -408,71 +431,71 @@ func SongContent(song *store.Song, originalMarkdown string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div id=\"song-content\" class=\"mt-8\" data-song-id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"song-content\" class=\"mt-8\" data-song-id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var22 string
-		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
+		var templ_7745c5c3_Var23 string
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(song.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 312, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 320, Col: 59}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" x-data=\"{ editContent: false, activeTab: 'edit', content: '', originalContent: '' }\" x-init=\"content = $refs.initialContent.value; originalContent = content\"><div class=\"bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none\"><div class=\"px-6 py-4 border-b border-gray-200 dark:border-gray-700\"><div class=\"flex justify-between items-center\"><div><h2 class=\"text-lg font-medium text-gray-900 dark:text-white\">Contenido de la Canción</h2><p class=\"text-sm text-gray-500 dark:text-gray-400\">Letras, acordes, notas y cualquier información relevante para la práctica</p></div><div class=\"flex space-x-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if song.Content == "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<form method=\"POST\" action=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var23 templ.SafeURL
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + song.ID + "/generate-content")
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 324, Col: 62}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" x-ajax x-data=\"{ isGenerating: false }\" x-target=\"song-content\" @submit=\"isGenerating = true\" @ajax:before=\"isGenerating = true\" @ajax:after=\"isGenerating = false\" @ajax:success=\"handleAISuccess\" @ajax:error=\"handleAIError\"><button type=\"submit\" :disabled=\"isGenerating\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed\"><svg :class=\"isGenerating ? 'animate-spin' : ''\" class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path v-if=\"!isGenerating\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z\"></path> <path v-if=\"isGenerating\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15\"></path></svg> <span x-text=\"isGenerating ? 'Generando...' : 'Generar con IA'\"></span></button></form>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<button @click=\"editContent = true\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\"></path></svg> Editar Contenido</button></div></div></div><div class=\"p-6\"><textarea x-ref=\"initialContent\" class=\"hidden\" hidden>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var24 string
-		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(originalMarkdown)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 378, Col: 77}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</textarea> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" x-data=\"{ editContent: false, activeTab: 'edit', content: '', originalContent: '' }\" x-init=\"content = $refs.initialContent.value; originalContent = content\"><div class=\"bg-white dark:bg-gray-800 shadow rounded-lg dark:shadow-none\"><div class=\"px-6 py-4 border-b border-gray-200 dark:border-gray-700\"><div class=\"flex justify-between items-center\"><div><h2 class=\"text-lg font-medium text-gray-900 dark:text-white\">Contenido de la Canción</h2><p class=\"text-sm text-gray-500 dark:text-gray-400\">Letras, acordes, notas y cualquier información relevante para la práctica</p></div><div class=\"flex space-x-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if song.Content == "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"text-center py-8\"><svg class=\"mx-auto h-12 w-12 text-gray-400 dark:text-gray-500\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\"></path></svg><p class=\"mt-2 text-sm text-gray-500 dark:text-gray-400\">No hay contenido aún</p><p class=\"text-xs text-gray-400 dark:text-gray-500\">Usa IA para generar contenido o edita la canción para agregar letras, acordes y notas</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<form method=\"POST\" action=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var24 templ.SafeURL
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + song.ID + "/generate-content")
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 332, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" x-ajax x-data=\"{ isGenerating: false }\" x-target=\"song-content\" @submit=\"isGenerating = true\" @ajax:before=\"isGenerating = true\" @ajax:after=\"isGenerating = false\" @ajax:success=\"handleAISuccess\" @ajax:error=\"handleAIError\"><button type=\"submit\" :disabled=\"isGenerating\" class=\"inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed\"><svg :class=\"isGenerating ? 'animate-spin' : ''\" class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path v-if=\"!isGenerating\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z\"></path> <path v-if=\"isGenerating\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15\"></path></svg> <span x-text=\"isGenerating ? 'Generando...' : 'Generar con IA'\"></span></button></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<button @click=\"editContent = true\" class=\"inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\"><svg class=\"-ml-1 mr-2 h-4 w-4\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\"></path></svg> Editar Contenido</button></div></div></div><div class=\"p-6\"><textarea x-ref=\"initialContent\" class=\"hidden\" hidden>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var25 string
+		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(originalMarkdown)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 386, Col: 77}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</textarea> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if song.Content == "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"text-center py-8\"><svg class=\"mx-auto h-12 w-12 text-gray-400 dark:text-gray-500\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\"></path></svg><p class=\"mt-2 text-sm text-gray-500 dark:text-gray-400\">No hay contenido aún</p><p class=\"text-xs text-gray-400 dark:text-gray-500\">Usa IA para generar contenido o edita la canción para agregar letras, acordes y notas</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<!-- View Mode --> <div x-show=\"!editContent\" class=\"prose prose-sm max-w-none dark:prose-invert\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<!-- View Mode --> <div x-show=\"!editContent\" class=\"prose prose-sm max-w-none dark:prose-invert\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -480,25 +503,25 @@ func SongContent(song *store.Song, originalMarkdown string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div><!-- Edit Mode --> <div x-show=\"editContent\" class=\"space-y-4\"><div class=\"flex space-x-2 border-b border-gray-300 dark:border-gray-600\"><button type=\"button\" class=\"tab-button border-b-2 border-indigo-500 text-indigo-600 px-3 py-2 text-sm font-medium\" data-tab=\"edit\" @click=\"activeTab = 'edit'\">Editar</button> <button type=\"button\" class=\"tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium\" data-tab=\"preview\" @click=\"activeTab = 'preview'\">Vista Previa</button></div><div x-show=\"activeTab === 'edit'\" class=\"tab-content active\" data-tab=\"edit\"><textarea x-model=\"content\" rows=\"15\" class=\"markdown-editor block w-full rounded-md bg-white dark:bg-gray-700 px-3 py-1.5 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500 sm:text-sm/6\" placeholder=\"Escribe aquí el contenido de la canción usando Markdown...&#10;&#10;Ejemplos:&#10;# Título&#10;## Sección&#10;**Negrita** o *cursiva*&#10;- Lista&#10;1. Lista numerada\"></textarea></div><div x-show=\"activeTab === 'preview'\" class=\"tab-content hidden\" data-tab=\"preview\"><div class=\"markdown-preview block w-full rounded-md bg-gray-50 dark:bg-gray-700 px-3 py-1.5 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 sm:text-sm/6 min-h-[200px] prose prose-sm max-w-none dark:prose-invert\"><div class=\"text-gray-500 dark:text-gray-400 italic\">Vista previa aparecerá aquí...</div></div></div><div class=\"flex justify-end space-x-3\"><button @click=\"editContent = false; content = originalContent\" class=\"px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\">Cancelar</button><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div><!-- Edit Mode --> <div x-show=\"editContent\" class=\"space-y-4\"><div class=\"flex space-x-2 border-b border-gray-300 dark:border-gray-600\"><button type=\"button\" class=\"tab-button border-b-2 border-indigo-500 text-indigo-600 px-3 py-2 text-sm font-medium\" data-tab=\"edit\" @click=\"activeTab = 'edit'\">Editar</button> <button type=\"button\" class=\"tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium\" data-tab=\"preview\" @click=\"activeTab = 'preview'\">Vista Previa</button></div><div x-show=\"activeTab === 'edit'\" class=\"tab-content active\" data-tab=\"edit\"><textarea x-model=\"content\" rows=\"15\" class=\"markdown-editor block w-full rounded-md bg-white dark:bg-gray-700 px-3 py-1.5 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 dark:focus:outline-indigo-500 sm:text-sm/6\" placeholder=\"Escribe aquí el contenido de la canción usando Markdown...&#10;&#10;Ejemplos:&#10;# Título&#10;## Sección&#10;**Negrita** o *cursiva*&#10;- Lista&#10;1. Lista numerada\"></textarea></div><div x-show=\"activeTab === 'preview'\" class=\"tab-content hidden\" data-tab=\"preview\"><div class=\"markdown-preview block w-full rounded-md bg-gray-50 dark:bg-gray-700 px-3 py-1.5 text-base text-gray-900 dark:text-white outline-1 -outline-offset-1 outline-gray-300 dark:outline-gray-600 sm:text-sm/6 min-h-[200px] prose prose-sm max-w-none dark:prose-invert\"><div class=\"text-gray-500 dark:text-gray-400 italic\">Vista previa aparecerá aquí...</div></div></div><div class=\"flex justify-end space-x-3\"><button @click=\"editContent = false; content = originalContent\" class=\"px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800\">Cancelar</button><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var25 templ.SafeURL
-			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + song.ID + "/update-content")
+			var templ_7745c5c3_Var26 templ.SafeURL
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs("/api/songs/" + song.ID + "/update-content")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 438, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/song_details.templ`, Line: 446, Col: 60}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" x-data=\"{ isSaving: false }\" x-target=\"song-content\" @submit=\"isSaving = true\" @ajax:before=\"isSaving = true\" @ajax:after=\"isSaving = false\" @ajax:success=\"handleContentSaveSuccess\" @ajax:error=\"handleContentSaveError\"><input type=\"hidden\" name=\"content\" x-model=\"content\"> <button type=\"submit\" :disabled=\"isSaving\" class=\"px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed\"><span x-text=\"isSaving ? 'Guardando...' : 'Guardar'\"></span></button></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" x-data=\"{ isSaving: false }\" x-target=\"song-content\" @submit=\"isSaving = true\" @ajax:before=\"isSaving = true\" @ajax:after=\"isSaving = false\" @ajax:success=\"handleContentSaveSuccess\" @ajax:error=\"handleContentSaveError\"><input type=\"hidden\" name=\"content\" x-model=\"content\"> <button type=\"submit\" :disabled=\"isSaving\" class=\"px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed\"><span x-text=\"isSaving ? 'Guardando...' : 'Guardar'\"></span></button></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

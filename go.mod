@@ -14,3 +14,5 @@ require (
 )
 
 require github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
+
+require github.com/phpdave11/gofpdf v1.4.3
