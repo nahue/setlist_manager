@@ -433,7 +433,7 @@ Until we're just a whisper
 - Soft ending
 - Guitar: gentle arpeggios
 - Bass: long notes
-- Drums: soft brushes`, songTitle, artist, key, tempoStr, key, key, key, key, key, key, key)
+- Drums: soft brushes`, songTitle, artist, key, tempoStr, key, key, key, key, key, key)
 
 	return &SongContentResponse{Content: sampleContent}
 }
