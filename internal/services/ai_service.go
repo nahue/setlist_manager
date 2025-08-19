@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -71,134 +70,6 @@ type SongContentResponse struct {
 	Content string `json:"content"`
 }
 
-// GenerateSongSections generates song sections using AI
-func (s *AIService) GenerateSongSections(req *AIGenerationRequest) (*AIGenerationResponse, error) {
-	// Add a 1-second delay to simulate processing time
-	time.Sleep(1 * time.Second)
-
-	// If no OpenAI key is configured, return sample data
-	if s.openAIKey == "" {
-		return s.generateSampleSections(req.SongTitle, req.Artist), nil
-	}
-
-	// Create the prompt for ChatGPT using a flexible format
-	prompt := fmt.Sprintf(`Generate song sections for "%s" by %s in the key of %s. 
-
-Return JSON in this exact format:
-
-{"song_info":{"title":"%s","artist":"%s","original_key":"%s","tempo":"[BPM and feel]","time_signature":"[4/4, 3/4, etc.]","duration":"[mm:ss]"},"sections":[{"name":"[section_name]","key":"%s","body":"**Lyrics:** [Complete lyrics]\\n\\n**Notes:** [Performance notes]"}]}
-
-IMPORTANT: For each section, provide the COMPLETE lyrics. Do not use placeholders like [Instrumental], [...], or partial lyrics. Write out the full lyrics for each section. For instrumental sections, write "(Instrumental)" as the lyrics.`, req.SongTitle, req.Artist, req.Key, req.SongTitle, req.Artist, req.Key, req.Key)
-
-	// Call OpenAI API
-	openAIReq := map[string]interface{}{
-		"model": "gpt-3.5-turbo",
-		"messages": []map[string]string{
-			{
-				"role":    "system",
-				"content": "You are a music expert and band practice coach. Generate comprehensive band practice cheatsheets in the exact JSON format requested, focusing on performance aspects rather than technical music theory.",
-			},
-			{
-				"role":    "user",
-				"content": prompt,
-			},
-		},
-		"temperature": 0.7,
-		"max_tokens":  4096,
-	}
-
-	jsonData, err := json.Marshal(openAIReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal OpenAI request: %w", err)
-	}
-
-	// Make request to OpenAI
-	httpReq, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+s.openAIKey)
-
-	resp, err := s.client.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to make OpenAI request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("OpenAI API error: %s - %s", resp.Status, string(body))
-	}
-
-	// Parse OpenAI response
-	var openAIResp map[string]interface{}
-	if err := json.Unmarshal(body, &openAIResp); err != nil {
-		return nil, fmt.Errorf("failed to parse OpenAI response: %w", err)
-	}
-
-	// Extract the content from the response
-	choices, ok := openAIResp["choices"].([]interface{})
-	if !ok || len(choices) == 0 {
-		return nil, fmt.Errorf("no choices in OpenAI response")
-	}
-
-	choice, ok := choices[0].(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("invalid choice format")
-	}
-
-	message, ok := choice["message"].(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("invalid message format")
-	}
-
-	content, ok := message["content"].(string)
-	if !ok {
-		return nil, fmt.Errorf("invalid content format")
-	}
-
-	// Clean the content by removing markdown code blocks if present
-	cleanedContent := content
-	if strings.HasPrefix(strings.TrimSpace(content), "```") {
-		lines := strings.Split(content, "\n")
-		if len(lines) > 2 {
-			// Remove first line (```json) and last line (```)
-			cleanedContent = strings.Join(lines[1:len(lines)-1], "\n")
-		}
-	}
-
-	// If the JSON is truncated, try to complete it
-	if !strings.HasSuffix(strings.TrimSpace(cleanedContent), "}") {
-		// Find the last complete object and close it
-		lastBrace := strings.LastIndex(cleanedContent, "}")
-		if lastBrace > 0 {
-			cleanedContent = cleanedContent[:lastBrace+1]
-		}
-	}
-
-	// Parse the JSON content from the AI response
-	var aiResponse AIGenerationResponse
-	if err := json.Unmarshal([]byte(cleanedContent), &aiResponse); err != nil {
-		// If parsing fails, return the error with the content for debugging
-		return nil, fmt.Errorf("failed to parse AI response JSON: %w\nAI Response Content: %s", err, content)
-	}
-
-	// Convert escaped newlines to actual newlines in the body content
-	for i := range aiResponse.Sections {
-		aiResponse.Sections[i].Body = strings.ReplaceAll(aiResponse.Sections[i].Body, "\\n", "\n")
-	}
-
-	fmt.Println("AI Prompt:", prompt)
-	fmt.Println("AI Response:", aiResponse)
-	return &aiResponse, nil
-}
-
 // GenerateSongContent generates song content using AI for band practice
 func (s *AIService) GenerateSongContent(req *SongContentRequest) (*SongContentResponse, error) {
 	// Add a 1-second delay to simulate processing time
@@ -237,7 +108,7 @@ IMPORTANT: Include the COMPLETE lyrics for each section. Do not use placeholders
 
 	// Call OpenAI API
 	openAIReq := map[string]interface{}{
-		"model": "gpt-3.5-turbo",
+		"model": "gpt-4o",
 		"messages": []map[string]string{
 			{
 				"role":    "system",
